@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 120">
+  <defs>
+    <linearGradient id="rocketGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4facfe"/>
+      <stop offset="100%" stop-color="#00f2fe"/>
+    </linearGradient>
+    <linearGradient id="rocketAccent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF6B6B"/>
+      <stop offset="100%" stop-color="#FFD166"/>
+    </linearGradient>
+    <linearGradient id="textGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#c0f0ff"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="5" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+  
+  <!-- 更卡通的火箭 -->
+  <g transform="translate(10, 10) scale(0.9)">
+    <!-- 火箭主体 -->
+    <path fill="#203a43" d="M60,10 C60,10 30,40 30,80 L90,80 C90,40 60,10 60,10 Z" />
+    <path fill="url(#rocketGradient)" d="M60,15 C60,15 35,40 35,75 L85,75 C85,40 60,15 60,15 Z" />
+    
+    <!-- 火箭窗口 -->
+    <circle cx="60" cy="40" r="12" fill="#c0f0ff" />
+    <circle cx="60" cy="40" r="8" fill="#0f2027" />
+    <circle cx="60" cy="40" r="2" fill="#ffffff" />
+    
+    <!-- 火箭翼 -->
+    <path fill="#203a43" d="M30,70 L10,95 L30,95 L30,70 Z" />
+    <path fill="#203a43" d="M90,70 L110,95 L90,95 L90,70 Z" />
+    <path fill="url(#rocketAccent)" d="M35,70 L20,90 L35,90 L35,70 Z" />
+    <path fill="url(#rocketAccent)" d="M85,70 L100,90 L85,90 L85,70 Z" />
+    
+    <!-- 火箭底部 -->
+    <path fill="#203a43" d="M30,80 L30,95 L90,95 L90,80 Z" />
+    
+    <!-- 火焰 -->
+    <path fill="#FF6B6B" d="M45,95 L50,120 L70,120 L75,95 Z" />
+    <path fill="#FFD166" d="M50,95 L55,115 L65,115 L70,95 Z" />
+    <path fill="#ffffff" d="M55,95 L58,105 L62,105 L65,95 Z" />
+    
+    <!-- 装饰细节 -->
+    <rect x="45" y="55" width="30" height="5" rx="2" fill="#203a43" />
+    <rect x="45" y="65" width="30" height="5" rx="2" fill="#203a43" />
+  </g>
+  
+  <!-- 测试平台文字 -->
+  <text x="140" y="65" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="42" font-weight="bold" fill="url(#textGradient)" filter="url(#glow)">测试平台</text>
+</svg> 

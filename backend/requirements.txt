@@ -1,0 +1,21 @@
+# Django和REST框架
+Django==3.2
+djangorestframework==3.12.4
+django-cors-headers==3.10.0
+djangorestframework-simplejwt==5.0.0
+drf-yasg==1.20.0
+
+# 数据库
+mysqlclient==2.1.0
+
+# 缓存和消息队列
+redis==4.0.2
+
+# 异步任务
+celery==5.1.2
+django-celery-results==2.2.0
+
+# 工具包
+python-dateutil==2.8.2
+Pillow==9.0.0
+requests==2.27.1 

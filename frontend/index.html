@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试平台 - AiTestPlantForm</title>
+    <meta name="description" content="AiTestPlantForm是一个功能强大的测试管理平台，帮助您高效管理测试用例、测试计划和测试执行。">
+    <meta name="theme-color" content="#0f2027">
+    <style>
+      body {
+        background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+      }
+      .loading-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        width: 100vw;
+      }
+      .loading-logo {
+        width: 100px;
+        height: 100px;
+        animation: pulse 1.5s infinite ease-in-out;
+      }
+      @keyframes pulse {
+        0% { transform: scale(0.95); opacity: 0.7; }
+        50% { transform: scale(1.05); opacity: 1; }
+        100% { transform: scale(0.95); opacity: 0.7; }
+      }
+      
+      /* 星星背景 */
+      .stars {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+      }
+      .star {
+        position: absolute;
+        width: 2px;
+        height: 2px;
+        background-color: white;
+        border-radius: 50%;
+      }
+      
+      /* 生成100个随机位置的星星 */
+      .stars::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: 
+          radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 4px),
+          radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 3px),
+          radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 4px);
+        background-size: 550px 550px, 350px 350px, 250px 250px;
+        background-position: 0 0, 40px 60px, 130px 270px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="stars"></div>
+    <div id="app">
+      <div class="loading-container">
+        <svg class="loading-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+          <defs>
+            <linearGradient id="rocketGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#4facfe"/>
+              <stop offset="100%" stop-color="#00f2fe"/>
+            </linearGradient>
+            <linearGradient id="rocketAccent" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#FF6B6B"/>
+              <stop offset="100%" stop-color="#FFD166"/>
+            </linearGradient>
+          </defs>
+          
+          <!-- 更卡通的火箭 -->
+          <g transform="translate(206, 196) scale(1.5)">
+            <!-- 火箭主体 -->
+            <path fill="#203a43" d="M60,10 C60,10 30,40 30,80 L90,80 C90,40 60,10 60,10 Z" />
+            <path fill="url(#rocketGradient)" d="M60,15 C60,15 35,40 35,75 L85,75 C85,40 60,15 60,15 Z" />
+            
+            <!-- 火箭窗口 -->
+            <circle cx="60" cy="40" r="12" fill="#c0f0ff" />
+            <circle cx="60" cy="40" r="8" fill="#0f2027" />
+            <circle cx="60" cy="40" r="2" fill="#ffffff" />
+            
+            <!-- 火箭翼 -->
+            <path fill="#203a43" d="M30,70 L10,95 L30,95 L30,70 Z" />
+            <path fill="#203a43" d="M90,70 L110,95 L90,95 L90,70 Z" />
+            <path fill="url(#rocketAccent)" d="M35,70 L20,90 L35,90 L35,70 Z" />
+            <path fill="url(#rocketAccent)" d="M85,70 L100,90 L85,90 L85,70 Z" />
+            
+            <!-- 火箭底部 -->
+            <path fill="#203a43" d="M30,80 L30,95 L90,95 L90,80 Z" />
+            
+            <!-- 火焰 -->
+            <path fill="#FF6B6B" d="M45,95 L50,120 L70,120 L75,95 Z" />
+            <path fill="#FFD166" d="M50,95 L55,115 L65,115 L70,95 Z" />
+            <path fill="#ffffff" d="M55,95 L58,105 L62,105 L65,95 Z" />
+            
+            <!-- 装饰细节 -->
+            <rect x="45" y="55" width="30" height="5" rx="2" fill="#203a43" />
+            <rect x="45" y="65" width="30" height="5" rx="2" fill="#203a43" />
+          </g>
+        </svg>
+      </div>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html> 
