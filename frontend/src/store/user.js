@@ -33,7 +33,7 @@ export const useUserStore = defineStore('user', () => {
       return true
     } catch (error) {
       console.error('注册失败:', error)
-      return false
+      throw error; // 将错误向上传递，以便在组件中处理
     }
   }
   

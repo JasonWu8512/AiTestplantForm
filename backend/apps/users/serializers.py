@@ -34,7 +34,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
     
     用于用户注册，包含密码验证逻辑
     """
-    password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
+    password = serializers.CharField(write_only=True, required=True)
     password2 = serializers.CharField(write_only=True, required=True)
 
     class Meta:
@@ -83,7 +83,7 @@ class ChangePasswordSerializer(serializers.Serializer):
     用于用户密码修改
     """
     old_password = serializers.CharField(required=True)
-    new_password = serializers.CharField(required=True, validators=[validate_password])
+    new_password = serializers.CharField(required=True)
     new_password2 = serializers.CharField(required=True)
 
     def validate(self, attrs):

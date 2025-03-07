@@ -78,6 +78,15 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
     
     @action(detail=False, methods=['put'], permission_classes=[permissions.IsAuthenticated])
+    def update_me(self, request):
+        """更新当前登录用户的信息"""
+        serializer = UserUpdateSerializer(request.user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(detail=False, methods=['put'], permission_classes=[permissions.IsAuthenticated])
     def change_password(self, request):
         """修改当前登录用户的密码"""
         user = request.user

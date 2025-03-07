@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 火箭主体 -->
+  <g transform="rotate(45, 40, 40)">
+    <!-- 火箭身体 -->
+    <path d="M25 20C25 20 25 15 40 15C55 15 55 20 55 20V50C55 50 55 55 40 55C25 55 25 50 25 50V20Z" fill="#4285F4" stroke="#2A56C6" stroke-width="2"/>
+    
+    <!-- 火箭头部 -->
+    <path d="M40 15C40 15 30 5 30 5C30 5 40 0 50 5C50 5 40 15 40 15Z" fill="#FF5252" stroke="#D32F2F" stroke-width="2"/>
+    
+    <!-- 火箭窗口 -->
+    <circle cx="40" cy="30" r="6" fill="#FFFFFF" stroke="#2A56C6" stroke-width="1.5"/>
+    
+    <!-- 火箭尾翼 -->
+    <path d="M25 40L15 50L15 30L25 40Z" fill="#FF5252" stroke="#D32F2F" stroke-width="2"/>
+    <path d="M55 40L65 50L65 30L55 40Z" fill="#FF5252" stroke="#D32F2F" stroke-width="2"/>
+    
+    <!-- 火箭底部 -->
+    <path d="M30 50L30 60L35 55L40 60L45 55L50 60L50 50" fill="#FF5252" stroke="#D32F2F" stroke-width="2"/>
+    
+    <!-- 火焰动画 - 使用多层不同颜色的火焰 -->
+    <g class="flames">
+      <!-- 外层火焰 -->
+      <path d="M35 55C35 55 30 65 40 75C50 65 45 55 45 55" fill="#FFD600">
+        <animate attributeName="d" 
+                 values="M35 55C35 55 30 65 40 75C50 65 45 55 45 55;
+                         M35 55C35 55 32 68 40 78C48 68 45 55 45 55;
+                         M35 55C35 55 30 65 40 75C50 65 45 55 45 55" 
+                 dur="0.8s" 
+                 repeatCount="indefinite"/>
+      </path>
+      
+      <!-- 中层火焰 -->
+      <path d="M37 55C37 55 35 62 40 70C45 62 43 55 43 55" fill="#FF9100">
+        <animate attributeName="d" 
+                 values="M37 55C37 55 35 62 40 70C45 62 43 55 43 55;
+                         M37 55C37 55 36 65 40 73C44 65 43 55 43 55;
+                         M37 55C37 55 35 62 40 70C45 62 43 55 43 55" 
+                 dur="0.6s" 
+                 repeatCount="indefinite"/>
+      </path>
+      
+      <!-- 内层火焰 -->
+      <path d="M38 55C38 55 37 60 40 65C43 60 42 55 42 55" fill="#FF5252">
+        <animate attributeName="d" 
+                 values="M38 55C38 55 37 60 40 65C43 60 42 55 42 55;
+                         M38 55C38 55 38 62 40 67C42 62 42 55 42 55;
+                         M38 55C38 55 37 60 40 65C43 60 42 55 42 55" 
+                 dur="0.4s" 
+                 repeatCount="indefinite"/>
+      </path>
+    </g>
+  </g>
+  
+  <!-- 小星星装饰 -->
+  <circle cx="15" cy="15" r="1.5" fill="white">
+    <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="65" cy="25" r="2" fill="white">
+    <animate attributeName="opacity" values="0.6;1;0.6" dur="3s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="10" cy="60" r="1" fill="white">
+    <animate attributeName="opacity" values="0.3;0.8;0.3" dur="2.5s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="70" cy="65" r="1.5" fill="white">
+    <animate attributeName="opacity" values="0.5;1;0.5" dur="1.8s" repeatCount="indefinite"/>
+  </circle>
+</svg> 

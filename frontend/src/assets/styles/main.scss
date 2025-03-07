@@ -1,5 +1,5 @@
 /* 全局样式 */
-@import './space-background.scss';
+@forward './space-background.scss';
 
 /* 基础样式重置 */
 * {
@@ -11,14 +11,14 @@
 html, body {
   height: 100%;
   width: 100%;
-  color: #fff;
+  color: #333;
 }
 
 body {
   font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #0f2027;
+  background-color: #0B0B2A;
 }
 
 #app {
@@ -34,8 +34,7 @@ body {
   margin-bottom: 20px;
   font-size: 24px;
   font-weight: bold;
-  color: #4facfe;
-  text-shadow: 0 0 10px rgba(0, 242, 254, 0.5);
+  color: #333;
 }
 
 .form-container {
@@ -47,8 +46,9 @@ body {
   max-width: 400px;
   margin: 100px auto;
   padding: 30px;
-  border-radius: 10px;
-  box-shadow: 0 0 20px rgba(0, 242, 254, 0.5);
+  border-radius: 5px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  background-color: white;
 }
 
 .auth-title {
@@ -56,13 +56,13 @@ body {
   margin-bottom: 30px;
   font-size: 24px;
   font-weight: bold;
-  color: #4facfe;
+  color: #333;
 }
 
 .auth-footer {
   margin-top: 20px;
   text-align: center;
-  color: #fff;
+  color: #333;
   font-size: 16px;
 }
 

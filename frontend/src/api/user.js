@@ -30,11 +30,20 @@ export default {
   
   // 更新用户信息
   updateUserInfo(data) {
-    return request({
-      url: '/api/users/me/',
+    const config = {
+      url: '/api/users/update_me/',
       method: 'put',
       data
-    })
+    };
+    
+    // 如果是FormData类型，添加适当的Content-Type头
+    if (data instanceof FormData) {
+      config.headers = {
+        'Content-Type': 'multipart/form-data'
+      };
+    }
+    
+    return request(config);
   },
   
   // 修改密码

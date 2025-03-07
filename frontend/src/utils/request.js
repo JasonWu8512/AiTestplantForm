@@ -38,8 +38,25 @@ service.interceptors.response.use(
       // 处理常见错误
       switch (status) {
         case 400:
-          ElMessage.error(data.detail || '请求参数错误')
-          break
+          // 显示详细的错误信息
+          if (typeof data === 'object' && data !== null) {
+            const errorMessages = [];
+            for (const key in data) {
+              if (Array.isArray(data[key])) {
+                errorMessages.push(`${key}: ${data[key].join(', ')}`);
+              } else if (typeof data[key] === 'string') {
+                errorMessages.push(`${key}: ${data[key]}`);
+              }
+            }
+            if (errorMessages.length > 0) {
+              ElMessage.error(errorMessages.join('\n'));
+            } else {
+              ElMessage.error('请求参数错误');
+            }
+          } else {
+            ElMessage.error(data.detail || '请求参数错误');
+          }
+          break;
         case 401:
           ElMessage.error('登录已过期，请重新登录')
           // 清除token并跳转到登录页
@@ -64,6 +81,7 @@ service.interceptors.response.use(
       ElMessage.error(`网络错误: ${error.message}`)
     }
     
+    console.error('响应错误:', error.response ? error.response.data : error.message)
     return Promise.reject(error)
   }
 )
