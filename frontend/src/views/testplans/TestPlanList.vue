@@ -170,7 +170,7 @@
             <div class="test-cases-header">
               <span>已关联测试用例 ({{ testCases.length }})</span>
               <el-button type="primary" size="small" @click="handleAddTestCases" v-if="dialogType === 'edit'">
-                添加测试用例
+                <el-icon><Plus /></el-icon>添加测试用例
               </el-button>
             </div>
             
@@ -178,15 +178,17 @@
               v-loading="testCasesLoading"
               :data="testCases"
               border
+              class="test-cases-table"
               style="width: 100%"
               max-height="300"
               v-if="testCases.length > 0"
+              :header-cell-style="{background:'#f5f7fa', color: '#606266'}"
             >
               <el-table-column prop="case_detail.id" label="ID" width="80" />
               <el-table-column prop="case_detail.name" label="用例名称" min-width="150" show-overflow-tooltip />
               <el-table-column prop="case_detail.priority_display" label="优先级" width="100">
                 <template #default="scope">
-                  <el-tag :type="getPriorityType(scope.row.case_detail.priority)">
+                  <el-tag :type="getPriorityType(scope.row.case_detail.priority)" effect="light">
                     {{ scope.row.case_detail.priority_display }}
                   </el-tag>
                 </template>
@@ -194,15 +196,15 @@
               <el-table-column prop="order" label="执行顺序" width="100" />
               <el-table-column label="操作" width="150" v-if="dialogType === 'edit'">
                 <template #default="scope">
-                  <el-button size="small" type="danger" @click="handleRemoveTestCase(scope.row)">
-                    移除
+                  <el-button size="small" type="danger" @click="handleRemoveTestCase(scope.row)" text>
+                    <el-icon><Delete /></el-icon>移除
                   </el-button>
                 </template>
               </el-table-column>
             </el-table>
             
             <div class="no-data" v-else>
-              暂无关联的测试用例
+              <el-empty description="暂无关联的测试用例" :image-size="80"></el-empty>
             </div>
           </div>
         </el-form-item>
@@ -298,7 +300,7 @@
 <script setup>
 import { ref, reactive, onMounted, computed, watch } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Plus, Search } from '@element-plus/icons-vue'
+import { Plus, Search, Delete } from '@element-plus/icons-vue'
 import { useRouter } from 'vue-router'
 import { getTestPlans, createTestPlan, updateTestPlan, deleteTestPlan, getTestPlanById, getTestPlanCases, addCasesToTestPlan, removeCaseFromTestPlan } from '@/api/testplan'
 import { getProjects, getTestCases } from '@/api/testcase'
@@ -385,15 +387,37 @@ onMounted(async () => {
  */
 const loadProjectOptions = async () => {
   try {
+    console.log('加载项目选项')
     const response = await getProjects()
-    projectOptions.value = (response.data.items || []).map(project => ({
+    console.log('项目选项响应:', response)
+    
+    // 根据实际后端返回的数据结构进行处理
+    let projects = []
+    
+    if (response.results) {
+      // 如果后端返回的是 { results: [...], count: ... } 格式
+      projects = response.results
+    } else if (response.data && response.data.items) {
+      // 如果后端返回的是 { data: { items: [...], total: ... } } 格式
+      projects = response.data.items
+    } else if (Array.isArray(response)) {
+      // 如果后端直接返回数组
+      projects = response
+    } else {
+      console.error('未知的响应格式:', response)
+      projects = []
+    }
+    
+    projectOptions.value = projects.map(project => ({
       value: project.id,
       label: project.name
     }))
+    
+    console.log('处理后的项目选项:', projectOptions.value)
   } catch (error) {
     console.error('加载项目选项失败:', error)
-    // 不显示错误提示，只在控制台记录错误
     projectOptions.value = []
+    ElMessage.error('加载项目选项失败')
   }
 }
 
@@ -405,8 +429,8 @@ const fetchTestPlans = async () => {
   try {
     const params = {
       page: currentPage.value,
-      limit: pageSize.value,
-      search: searchKeyword.value
+      page_size: pageSize.value,
+      search: searchKeyword.value || undefined
     }
     
     if (projectFilter.value) {
@@ -417,14 +441,36 @@ const fetchTestPlans = async () => {
       params.status = statusFilter.value
     }
     
+    console.log('获取测试计划列表，参数:', params)
     const response = await getTestPlans(params)
-    testPlanList.value = response.data.items || []
-    total.value = response.data.total || 0
+    console.log('测试计划列表响应:', response)
+    
+    // 根据实际后端返回的数据结构进行处理
+    if (response.results) {
+      // 如果后端返回的是 { results: [...], count: ... } 格式
+      testPlanList.value = response.results
+      total.value = response.count || 0
+    } else if (response.data && response.data.items) {
+      // 如果后端返回的是 { data: { items: [...], total: ... } } 格式
+      testPlanList.value = response.data.items
+      total.value = response.data.total || 0
+    } else if (Array.isArray(response)) {
+      // 如果后端直接返回数组
+      testPlanList.value = response
+      total.value = response.length
+    } else {
+      // 其他情况，记录错误并设置为空数组
+      console.error('未知的响应格式:', response)
+      testPlanList.value = []
+      total.value = 0
+    }
+    
+    console.log('处理后的测试计划列表:', testPlanList.value)
   } catch (error) {
     console.error('获取测试计划列表失败:', error)
-    // 不显示错误提示，只在控制台记录错误
     testPlanList.value = []
     total.value = 0
+    ElMessage.error('获取测试计划列表失败')
   } finally {
     loading.value = false
   }
@@ -494,17 +540,43 @@ const handleEditTestPlan = (row) => {
  */
 const loadTestPlanDetail = async (id) => {
   try {
+    console.log('加载测试计划详情，ID:', id)
     const response = await getTestPlanById(id)
-    const testPlan = response.data
+    console.log('测试计划详情响应:', response)
+    
+    // 根据实际后端返回的数据结构进行处理
+    let testPlan = null
+    
+    if (response.data) {
+      // 如果后端返回的是 { data: ... } 格式
+      testPlan = response.data
+    } else {
+      // 如果后端直接返回对象
+      testPlan = response
+    }
+    
+    if (!testPlan) {
+      console.error('测试计划详情为空')
+      ElMessage.warning('无法加载测试计划详情')
+      return
+    }
     
     // 填充表单
     testPlanForm.id = testPlan.id
     testPlanForm.name = testPlan.name
-    testPlanForm.description = testPlan.description
-    testPlanForm.project_id = testPlan.project_id
+    testPlanForm.description = testPlan.description || ''
+    // 确保使用正确的属性名
+    testPlanForm.project = testPlan.project_id || testPlan.project
     testPlanForm.status = testPlan.status
-    testPlanForm.start_date = testPlan.start_date
-    testPlanForm.end_date = testPlan.end_date
+    
+    // 设置时间范围
+    if (testPlan.start_time && testPlan.end_time) {
+      timeRange.value = [testPlan.start_time, testPlan.end_time]
+    } else if (testPlan.start_date && testPlan.end_date) {
+      timeRange.value = [testPlan.start_date, testPlan.end_date]
+    } else {
+      timeRange.value = []
+    }
     
     // 加载测试用例
     loadTestCases(id)
@@ -512,7 +584,7 @@ const loadTestPlanDetail = async (id) => {
     dialogVisible.value = true
   } catch (error) {
     console.error('获取测试计划详情失败:', error)
-    // 不显示错误提示，只在控制台记录错误
+    ElMessage.error('获取测试计划详情失败')
   }
 }
 
@@ -520,16 +592,45 @@ const loadTestPlanDetail = async (id) => {
  * 加载测试用例
  */
 const loadTestCases = async (planId) => {
-  testCasesLoading.value = true
+  testCasesLoading.value = true;
   try {
-    const response = await getTestPlanCases(planId)
-    testCases.value = response.data.items || []
+    console.log('加载测试计划关联的测试用例，计划ID:', planId);
+    // 使用getTestPlanById获取测试计划详情，其中包含测试用例
+    const response = await getTestPlanById(planId);
+    console.log('测试计划详情响应:', response);
+    
+    // 根据实际后端返回的数据结构进行处理
+    let testPlanData = null;
+    
+    if (response.data) {
+      // 如果后端返回的是 { data: ... } 格式
+      testPlanData = response.data;
+    } else {
+      // 如果后端直接返回对象
+      testPlanData = response;
+    }
+    
+    if (!testPlanData) {
+      console.error('测试计划详情为空');
+      testCases.value = [];
+      return;
+    }
+    
+    // 从测试计划详情中获取测试用例
+    if (testPlanData.test_cases) {
+      testCases.value = testPlanData.test_cases;
+    } else {
+      console.error('测试计划中没有测试用例数据');
+      testCases.value = [];
+    }
+    
+    console.log('处理后的测试用例列表:', testCases.value);
   } catch (error) {
-    console.error('获取测试用例失败:', error)
-    // 不显示错误提示，只在控制台记录错误
-    testCases.value = []
+    console.error('获取测试用例失败:', error);
+    testCases.value = [];
+    ElMessage.error('获取测试用例失败');
   } finally {
-    testCasesLoading.value = false
+    testCasesLoading.value = false;
   }
 }
 
@@ -568,15 +669,34 @@ const submitTestPlanForm = async () => {
   await testPlanFormRef.value.validate(async (valid) => {
     if (valid) {
       try {
+        console.log('提交测试计划表单:', testPlanForm)
+        
+        // 创建一个新对象，避免修改原始对象
+        const formData = {
+          name: testPlanForm.name,
+          description: testPlanForm.description,
+          status: testPlanForm.status,
+          project: testPlanForm.project,
+          start_time: testPlanForm.start_time,
+          end_time: testPlanForm.end_time
+        }
+        
+        let response
         if (dialogType.value === 'add') {
-          await createTestPlan(testPlanForm)
+          response = await createTestPlan(formData)
+          console.log('创建测试计划成功，响应:', response)
           ElMessage.success('创建成功')
         } else {
-          await updateTestPlan(testPlanForm.id, testPlanForm)
+          response = await updateTestPlan(testPlanForm.id, formData)
+          console.log('更新测试计划成功，响应:', response)
           ElMessage.success('更新成功')
         }
+        
         dialogVisible.value = false
-        fetchTestPlans()
+        
+        // 确保在关闭对话框后重新获取测试计划列表
+        await fetchTestPlans()
+        console.log('刷新后的测试计划列表:', testPlanList.value)
       } catch (error) {
         console.error('保存测试计划失败:', error)
         ElMessage.error('保存测试计划失败')
@@ -622,20 +742,59 @@ const fetchAvailableCases = async () => {
       params.priority = casePriorityFilter.value
     }
     
+    console.log('获取可用测试用例，参数:', params)
     const response = await getTestCases(params)
+    console.log('可用测试用例响应:', response)
+    
+    // 根据实际后端返回的数据结构进行处理
+    let cases = []
+    let totalCount = 0
+    
+    if (response.results) {
+      // 如果后端返回的是 { results: [...], count: ... } 格式
+      cases = response.results
+      totalCount = response.count || 0
+    } else if (response.data && response.data.items) {
+      // 如果后端返回的是 { data: { items: [...], total: ... } } 格式
+      cases = response.data.items
+      totalCount = response.data.total || 0
+    } else if (response.data && Array.isArray(response.data)) {
+      // 如果后端返回的是 { data: [...] } 格式
+      cases = response.data
+      totalCount = response.data.length
+    } else if (Array.isArray(response)) {
+      // 如果后端直接返回数组
+      cases = response
+      totalCount = response.length
+    } else {
+      // 其他情况，记录错误并设置为空数组
+      console.error('未知的响应格式:', response)
+      cases = []
+      totalCount = 0
+    }
     
     // 过滤掉已经关联的测试用例
-    const existingCaseIds = testCases.value.map(item => item.case_detail.id)
-    availableCases.value = (response.data.results || response.data || []).filter(
-      item => !existingCaseIds.includes(item.id)
-    )
+    const existingCaseIds = testCases.value.map(item => {
+      // 根据实际数据结构获取 case_id
+      if (item.case_detail && item.case_detail.id) {
+        return item.case_detail.id
+      } else if (item.case_id) {
+        return item.case_id
+      } else if (item.id) {
+        return item.id
+      }
+      return null
+    }).filter(id => id !== null)
     
-    casesTotal.value = response.data.count || availableCases.value.length
+    availableCases.value = cases.filter(item => !existingCaseIds.includes(item.id))
+    casesTotal.value = totalCount
+    
+    console.log('处理后的可用测试用例:', availableCases.value)
   } catch (error) {
     console.error('获取可用测试用例失败:', error)
-    // 不显示错误提示，只在控制台记录错误
     availableCases.value = []
     casesTotal.value = 0
+    ElMessage.error('获取可用测试用例失败')
   } finally {
     availableCasesLoading.value = false
   }
@@ -823,22 +982,87 @@ const formatDate = (dateString) => {
   justify-content: flex-end;
 }
 
+/* 确保表单项内容宽度一致 */
+:deep(.el-form-item__content) {
+  width: calc(100% - 100px); /* 100px是label的宽度 */
+  box-sizing: border-box;
+}
+
+/* 确保输入框和选择框宽度一致 */
+:deep(.el-input),
+:deep(.el-select) {
+  width: 100%;
+}
+
+/* 确保日期选择器宽度一致 */
+:deep(.el-date-editor.el-input__wrapper) {
+  width: 100%;
+  max-width: 100%;
+}
+
 .test-cases-section {
-  border: 1px solid #ebeef5;
-  border-radius: 4px;
-  padding: 10px;
+  border: 1px solid #e4e7ed;
+  border-radius: 8px;
+  padding: 16px;
+  background-color: #f9fafc;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.test-cases-section:hover {
+  box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.1);
 }
 
 .test-cases-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #ebeef5;
+}
+
+.test-cases-header span {
+  font-size: 16px;
+  font-weight: 600;
+  color: #303133;
+  display: flex;
+  align-items: center;
+}
+
+.test-cases-header span::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 16px;
+  background-color: #409EFF;
+  margin-right: 8px;
+  border-radius: 2px;
+}
+
+.test-cases-table {
+  margin-top: 8px;
+  width: 100%;
 }
 
 .no-data {
   text-align: center;
   color: #909399;
-  padding: 20px 0;
+  padding: 30px 0;
+  background-color: #fff;
+  border-radius: 4px;
+  border: 1px dashed #e0e0e0;
+  margin-top: 8px;
+}
+
+/* 确保对话框内的表单项布局一致 */
+:deep(.el-dialog__body) {
+  padding: 20px 30px;
+}
+
+:deep(.el-form) {
+  width: 100%;
 }
 </style> 

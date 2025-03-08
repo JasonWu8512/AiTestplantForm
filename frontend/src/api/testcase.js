@@ -11,6 +11,7 @@ import request from '@/utils/request'
  * @returns {Promise} - 返回请求Promise
  */
 export function getProjects(params) {
+  console.log('获取项目列表，参数:', params)
   return request({
     url: '/testcases/projects/',
     method: 'get',

@@ -186,7 +186,7 @@ export function batchUpdateResults(results) {
  */
 export function createExecutionFromPlan(planId, data) {
   return request({
-    url: `/testplans/${planId}/create_execution/`,
+    url: `/testplans/testplans/${planId}/create_execution/`,
     method: 'post',
     data
   })

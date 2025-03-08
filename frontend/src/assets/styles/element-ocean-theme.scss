@@ -1,0 +1,122 @@
+/* Element Ocean Theme - 海洋主题变量 */
+
+// 主色调 - 海洋蓝
+$--color-primary: #3498db;
+$--color-primary-light-1: #5dade2;
+$--color-primary-light-2: #85c1e9;
+$--color-primary-light-3: #aed6f1;
+$--color-primary-light-4: #d6eaf8;
+$--color-primary-light-5: #ebf5fb;
+$--color-primary-light-6: #f5f9fe;
+$--color-primary-light-7: #f8fbfe;
+$--color-primary-light-8: #fbfdff;
+$--color-primary-light-9: #fdfeff;
+
+// 辅助色
+$--color-success: #2ecc71;
+$--color-warning: #f39c12;
+$--color-danger: #e74c3c;
+$--color-info: #5bc0de;
+
+// 中性色
+$--color-text-primary: #2c3e50;
+$--color-text-regular: #34495e;
+$--color-text-secondary: #7f8c8d;
+$--color-text-placeholder: #95a5a6;
+
+// 边框颜色
+$--border-color-base: #bdc3c7;
+$--border-color-light: #dfe4ea;
+$--border-color-lighter: #ecf0f1;
+$--border-color-extra-light: #f5f7fa;
+
+// 背景颜色
+$--background-color-base: #f5f7fa;
+
+// 禁用状态
+$--disabled-bg-color: #ecf0f1;
+$--disabled-text-color: #bdc3c7;
+$--disabled-border-color: #dfe4ea;
+
+// 阴影
+$--box-shadow-base: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+$--box-shadow-dark: 0 2px 16px 0 rgba(0, 0, 0, 0.15);
+$--box-shadow-light: 0 2px 8px 0 rgba(0, 0, 0, 0.05);
+
+// 字体
+$--font-path: 'element-plus/lib/theme-chalk/fonts';
+$--font-size-base: 14px;
+$--font-weight-primary: 500;
+
+// 圆角
+$--border-radius-base: 4px;
+$--border-radius-small: 2px;
+$--border-radius-circle: 100%;
+$--border-radius-zero: 0;
+
+// 卡片
+$--card-border-color: $--border-color-lighter;
+$--card-border-radius: 6px;
+$--card-padding: 20px;
+
+// 表格
+$--table-border-color: $--border-color-lighter;
+$--table-header-background-color: #f8fafc;
+$--table-row-hover-background-color: #f0f7ff;
+
+// 按钮
+$--button-primary-background-color: $--color-primary;
+$--button-primary-border-color: $--color-primary;
+$--button-primary-font-color: #ffffff;
+
+// 导入Element Plus的样式变量
+@forward 'element-plus/theme-chalk/src/common/var.scss' with (
+  $colors: (
+    'primary': (
+      'base': $--color-primary,
+    ),
+    'success': (
+      'base': $--color-success,
+    ),
+    'warning': (
+      'base': $--color-warning,
+    ),
+    'danger': (
+      'base': $--color-danger,
+    ),
+    'info': (
+      'base': $--color-info,
+    ),
+    'white': #ffffff,
+    'black': #000000,
+  ),
+  $text-color: (
+    'primary': $--color-text-primary,
+    'regular': $--color-text-regular,
+    'secondary': $--color-text-secondary,
+    'placeholder': $--color-text-placeholder,
+  ),
+  $border-color: (
+    'base': $--border-color-base,
+    'light': $--border-color-light,
+    'lighter': $--border-color-lighter,
+    'extra-light': $--border-color-extra-light,
+  ),
+  $bg-color: (
+    'base': $--background-color-base,
+  ),
+  $font-size: (
+    'base': $--font-size-base,
+  ),
+  $border-radius: (
+    'base': $--border-radius-base,
+    'small': $--border-radius-small,
+    'round': $--border-radius-circle,
+    'circle': $--border-radius-circle,
+  ),
+  $box-shadow: (
+    'base': $--box-shadow-base,
+    'light': $--box-shadow-light,
+    'dark': $--box-shadow-dark,
+  )
+); 

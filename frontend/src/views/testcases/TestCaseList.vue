@@ -281,7 +281,7 @@ import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, Search, Upload, ArrowDown, Back } from '@element-plus/icons-vue'
 import { useRouter, useRoute } from 'vue-router'
-import { getProjects, getTestCases, createTestCase, updateTestCase, deleteTestCase, importTestCases, exportTestCases } from '@/api/testcase'
+import { getProjects, getTestCases, createTestCase, updateTestCase, deleteTestCase, importTestCases, exportTestCases, getProject, getTestCase } from '@/api/testcase'
 
 // 路由
 const router = useRouter()
@@ -382,14 +382,37 @@ onMounted(async () => {
  */
 const loadProjectOptions = async () => {
   try {
+    console.log('加载项目选项')
     const response = await getProjects()
-    projectOptions.value = (response.data.items || []).map(project => ({
+    console.log('项目选项响应:', response)
+    
+    // 根据实际后端返回的数据结构进行处理
+    let projects = []
+    
+    if (response.results) {
+      // 如果后端返回的是 { results: [...], count: ... } 格式
+      projects = response.results
+    } else if (response.data && response.data.items) {
+      // 如果后端返回的是 { data: { items: [...], total: ... } } 格式
+      projects = response.data.items
+    } else if (Array.isArray(response)) {
+      // 如果后端直接返回数组
+      projects = response
+    } else {
+      console.error('未知的响应格式:', response)
+      projects = []
+    }
+    
+    projectOptions.value = projects.map(project => ({
       value: project.id,
       label: project.name
     }))
+    
+    console.log('处理后的项目选项:', projectOptions.value)
   } catch (error) {
     console.error('加载项目选项失败:', error)
     projectOptions.value = []
+    ElMessage.error('加载项目选项失败')
   }
 }
 
@@ -398,10 +421,24 @@ const loadProjectOptions = async () => {
  */
 const loadProjectInfo = async (id) => {
   try {
-    const response = await getProjects(id)
-    currentProject.value = response.data
+    console.log('加载项目信息，ID:', id)
+    const response = await getProject(id)
+    console.log('项目信息响应:', response)
+    
+    // 根据实际后端返回的数据结构进行处理
+    if (response) {
+      currentProject.value = response
+      // 设置项目过滤器
+      projectFilter.value = id
+    } else {
+      console.error('项目信息为空')
+      ElMessage.warning('无法加载项目信息')
+    }
   } catch (error) {
     console.error('加载项目信息失败:', error)
+    ElMessage.error('加载项目信息失败')
+    // 导航回项目列表
+    router.push('/projects')
   }
 }
 
@@ -413,8 +450,8 @@ const fetchTestCases = async () => {
   try {
     const params = {
       page: currentPage.value,
-      limit: pageSize.value,
-      search: searchKeyword.value
+      page_size: pageSize.value,
+      search: searchKeyword.value || undefined
     }
     
     if (priorityFilter.value) {
@@ -431,13 +468,36 @@ const fetchTestCases = async () => {
       params.project_id = projectFilter.value
     }
     
+    console.log('获取测试用例列表，参数:', params)
     const response = await getTestCases(params)
-    testCaseList.value = response.data.items || []
-    total.value = response.data.total || 0
+    console.log('测试用例列表响应:', response)
+    
+    // 根据实际后端返回的数据结构进行处理
+    if (response.results) {
+      // 如果后端返回的是 { results: [...], count: ... } 格式
+      testCaseList.value = response.results
+      total.value = response.count || 0
+    } else if (response.data && response.data.items) {
+      // 如果后端返回的是 { data: { items: [...], total: ... } } 格式
+      testCaseList.value = response.data.items
+      total.value = response.data.total || 0
+    } else if (Array.isArray(response)) {
+      // 如果后端直接返回数组
+      testCaseList.value = response
+      total.value = response.length
+    } else {
+      // 其他情况，记录错误并设置为空数组
+      console.error('未知的响应格式:', response)
+      testCaseList.value = []
+      total.value = 0
+    }
+    
+    console.log('处理后的测试用例列表:', testCaseList.value)
   } catch (error) {
     console.error('获取测试用例列表失败:', error)
     testCaseList.value = []
     total.value = 0
+    ElMessage.error('获取测试用例列表失败')
   } finally {
     loading.value = false
   }
@@ -519,21 +579,29 @@ const handleEditTestCase = (row) => {
  */
 const loadTestCaseDetail = async (id) => {
   try {
-    const response = await getTestCases(id)
-    const testCase = response.data
+    console.log('加载测试用例详情，ID:', id)
+    const response = await getTestCase(id)
+    console.log('测试用例详情响应:', response)
     
-    testCaseForm.id = testCase.id
-    testCaseForm.name = testCase.name
-    testCaseForm.description = testCase.description || ''
-    testCaseForm.priority = testCase.priority
-    testCaseForm.status = testCase.status
-    testCaseForm.steps = testCase.steps
-    testCaseForm.expected_results = testCase.expected_results
-    testCaseForm.project = testCase.project
-    
-    dialogVisible.value = true
+    // 根据实际后端返回的数据结构进行处理
+    if (response) {
+      testCaseForm.id = response.id
+      testCaseForm.name = response.name
+      testCaseForm.description = response.description || ''
+      testCaseForm.priority = response.priority
+      testCaseForm.status = response.status
+      testCaseForm.steps = response.steps
+      testCaseForm.expected_results = response.expected_results
+      testCaseForm.project = response.project
+      
+      dialogVisible.value = true
+    } else {
+      console.error('测试用例详情为空')
+      ElMessage.warning('无法加载测试用例详情')
+    }
   } catch (error) {
     console.error('加载测试用例详情失败:', error)
+    ElMessage.error('加载测试用例详情失败')
   }
 }
 

@@ -6,6 +6,7 @@
   padding: 20px;
   box-sizing: border-box;
   background-color: #f5f7fa;
+  overflow-y: auto; /* 添加垂直滚动条 */
 }
 
 /* 内容区域样式，使其占据剩余空间 */

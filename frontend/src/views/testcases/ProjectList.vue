@@ -1,8 +1,8 @@
 <template>
   <div class="project-list-container fullscreen-container">
     <div class="page-header">
-      <h2>项目管理</h2>
-      <el-button type="primary" @click="handleAddProject">
+      <h2 class="page-title">项目管理</h2>
+      <el-button type="primary" class="ocean-button" @click="handleAddProject">
         <el-icon><Plus /></el-icon>新建项目
       </el-button>
     </div>
@@ -39,6 +39,7 @@
           border
           style="width: 100%"
           height="100%"
+          row-class-name="project-row"
         >
           <el-table-column prop="id" label="ID" width="80" />
           <el-table-column prop="name" label="项目名称" min-width="150" />
@@ -59,15 +60,16 @@
           </el-table-column>
           <el-table-column label="操作" width="250" fixed="right">
             <template #default="scope">
-              <el-button size="small" @click="handleViewTestCases(scope.row)">
+              <el-button size="small" class="ocean-button" @click="handleViewTestCases(scope.row)">
                 查看用例
               </el-button>
-              <el-button size="small" type="primary" @click="handleEditProject(scope.row)">
+              <el-button size="small" type="primary" class="ocean-button" @click="handleEditProject(scope.row)">
                 编辑
               </el-button>
               <el-button 
                 size="small" 
                 type="danger" 
+                class="ocean-button"
                 @click="handleDeleteProject(scope.row)"
                 :disabled="scope.row.status === 'deleted'"
               >
@@ -97,6 +99,7 @@
       v-model="dialogVisible"
       :title="dialogType === 'add' ? '新建项目' : '编辑项目'"
       width="500px"
+      class="ocean-dialog"
     >
       <el-form
         ref="projectFormRef"
@@ -126,7 +129,7 @@
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="dialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="submitProjectForm">确定</el-button>
+          <el-button type="primary" class="ocean-button" @click="submitProjectForm">确定</el-button>
         </span>
       </template>
     </el-dialog>
@@ -186,13 +189,35 @@ onMounted(() => {
 const fetchProjects = async () => {
   loading.value = true
   try {
-    const response = await getProjects({
+    const params = {
       page: currentPage.value,
-      limit: pageSize.value,
-      search: searchKeyword.value
-    })
-    projectList.value = response.data.items || []
-    total.value = response.data.total || 0
+      page_size: pageSize.value,
+      search: searchKeyword.value || undefined,
+      status: statusFilter.value || undefined
+    }
+    const response = await getProjects(params)
+    
+    // 根据实际后端返回的数据结构进行处理
+    if (response.results) {
+      // 如果后端返回的是 { results: [...], count: ... } 格式
+      projectList.value = response.results
+      total.value = response.count || 0
+    } else if (response.data && response.data.items) {
+      // 如果后端返回的是 { data: { items: [...], total: ... } } 格式
+      projectList.value = response.data.items
+      total.value = response.data.total || 0
+    } else if (Array.isArray(response)) {
+      // 如果后端直接返回数组
+      projectList.value = response
+      total.value = response.length
+    } else {
+      // 其他情况，记录错误并设置为空数组
+      console.error('未知的响应格式:', response)
+      projectList.value = []
+      total.value = 0
+    }
+    
+    console.log('获取到的项目列表:', projectList.value)
   } catch (error) {
     console.error('获取项目列表失败:', error)
     // 不显示错误提示，只在控制台记录错误
@@ -297,15 +322,23 @@ const submitProjectForm = async () => {
   await projectFormRef.value.validate(async (valid) => {
     if (valid) {
       try {
+        console.log('提交项目表单:', projectForm)
+        
         if (dialogType.value === 'add') {
-          await createProject(projectForm)
+          const response = await createProject(projectForm)
+          console.log('创建项目成功，响应:', response)
           ElMessage.success('创建成功')
         } else {
-          await updateProject(projectForm.id, projectForm)
+          const response = await updateProject(projectForm.id, projectForm)
+          console.log('更新项目成功，响应:', response)
           ElMessage.success('更新成功')
         }
+        
         dialogVisible.value = false
-        fetchProjects()
+        
+        // 确保在关闭对话框后重新获取项目列表
+        await fetchProjects()
+        console.log('刷新后的项目列表:', projectList.value)
       } catch (error) {
         console.error('保存项目失败:', error)
         ElMessage.error('保存项目失败')
@@ -367,6 +400,21 @@ const formatDate = (dateString) => {
   margin-bottom: 20px;
 }
 
+.page-title {
+  position: relative;
+  display: inline-block;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    width: 50px;
+    height: 3px;
+    background: linear-gradient(to right, #3498db, #2980b9);
+  }
+}
+
 .search-bar {
   display: flex;
   margin-bottom: 20px;
@@ -375,6 +423,30 @@ const formatDate = (dateString) => {
 
 .search-bar .el-input {
   width: 300px;
+}
+
+.project-row {
+  transition: background-color 0.3s ease;
+  
+  &:hover {
+    background-color: rgba(240, 247, 255, 0.5) !important;
+  }
+}
+
+.ocean-dialog {
+  .el-dialog__header {
+    position: relative;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(to right, transparent, #3498db, transparent);
+    }
+  }
 }
 
 /* 使用fullscreen-container中的pagination-container样式 */

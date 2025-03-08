@@ -1,14 +1,27 @@
 <template>
-  <div class="app-container">
+  <div class="app-container layout-container">
+    <!-- 海洋背景元素 -->
+    <div class="ocean-waves">
+      <div class="wave" v-for="i in 3" :key="`w-${i}`"></div>
+    </div>
+    
+    <div class="bubbles">
+      <div class="bubble" v-for="i in 30" :key="`b-${i}`"></div>
+    </div>
+    
+    <div class="light-rays">
+      <div class="ray" v-for="i in 20" :key="`r-${i}`"></div>
+    </div>
+    
     <el-container>
-      <el-aside width="220px">
+      <el-aside width="220px" class="sidebar">
         <Sidebar />
       </el-aside>
       <el-container>
-        <el-header height="60px">
+        <el-header height="60px" class="header">
           <Header />
         </el-header>
-        <el-main>
+        <el-main class="main-content">
           <router-view />
         </el-main>
       </el-container>
@@ -27,21 +40,21 @@ import Sidebar from './Sidebar.vue'
 }
 
 .el-header {
-  background-color: #fff;
-  border-bottom: 1px solid #e6e6e6;
-  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
   padding: 0;
+  position: relative;
+  z-index: 10;
 }
 
 .el-aside {
-  background-color: #304156;
-  color: #fff;
   overflow: hidden;
+  position: relative;
+  z-index: 10;
 }
 
 .el-main {
-  background-color: #f0f2f5;
   padding: 20px;
   overflow-y: auto;
+  position: relative;
+  z-index: 5;
 }
 </style> 

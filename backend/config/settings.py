@@ -19,7 +19,7 @@ SECRET_KEY = 'django-insecure-ai-test-plant-form-secret-key-for-development'
 # 安全警告: 在生产环境中不要运行调试模式
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['*', 'localhost', '127.0.0.1', 'backend', 'backend:8000']
 
 # 应用定义
 INSTALLED_APPS = [

@@ -1,0 +1,380 @@
+/* Element Ocean Theme - 组件样式覆盖 */
+
+// 全局背景色和文字颜色
+body {
+  background-color: #f5f7fa;
+  color: #2c3e50;
+}
+
+// 应用容器
+#app {
+  background-color: #f5f7fa;
+  color: #2c3e50;
+}
+
+// 卡片样式
+.el-card {
+  background-color: #ffffff;
+  border: 1px solid #ecf0f1;
+  color: #2c3e50;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  
+  &:hover {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+  }
+  
+  .el-card__header {
+    border-bottom: 1px solid #ecf0f1;
+    background-color: #f8fafc;
+  }
+}
+
+// 按钮样式
+.el-button {
+  &--primary {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    border-color: #3498db;
+    
+    &:hover, &:focus {
+      background: linear-gradient(135deg, #5dade2, #3498db);
+      border-color: #5dade2;
+    }
+  }
+  
+  &--success {
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+    border-color: #2ecc71;
+  }
+  
+  &--warning {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+    border-color: #f39c12;
+  }
+  
+  &--danger {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    border-color: #e74c3c;
+  }
+  
+  &--info {
+    background: linear-gradient(135deg, #5bc0de, #3498db);
+    border-color: #5bc0de;
+  }
+}
+
+// 表格样式
+.el-table {
+  background-color: #ffffff;
+  color: #2c3e50;
+  
+  &::before {
+    background-color: #ecf0f1;
+  }
+  
+  th.el-table__cell {
+    background-color: #f8fafc;
+    color: #34495e;
+    font-weight: bold;
+    border-bottom: 1px solid #ecf0f1;
+  }
+  
+  td.el-table__cell {
+    border-bottom: 1px solid #ecf0f1;
+  }
+  
+  tr {
+    background-color: #ffffff;
+    
+    &:hover > td.el-table__cell {
+      background-color: #f0f7ff !important;
+    }
+  }
+  
+  .el-table__body tr.hover-row > td.el-table__cell {
+    background-color: #f0f7ff !important;
+  }
+}
+
+// 分页样式
+.el-pagination {
+  color: #34495e;
+  
+  .el-pagination__total, 
+  .el-pagination__jump {
+    color: #34495e;
+  }
+  
+  .btn-prev, 
+  .btn-next {
+    background-color: #ffffff;
+    color: #34495e;
+  }
+  
+  .el-pager li {
+    background-color: #ffffff;
+    color: #34495e;
+    
+    &.active {
+      background-color: #3498db;
+      color: #ffffff;
+    }
+    
+    &:hover {
+      color: #3498db;
+    }
+  }
+}
+
+// 表单样式
+.el-form {
+  .el-form-item__label {
+    color: #34495e;
+  }
+}
+
+// 输入框样式
+.el-input {
+  .el-input__wrapper {
+    background-color: #ffffff;
+    border: 1px solid #dfe4ea;
+    
+    &.is-focus {
+      border-color: #3498db;
+      box-shadow: 0 0 0 1px #3498db;
+    }
+  }
+  
+  .el-input__inner {
+    color: #2c3e50;
+    background-color: transparent;
+    
+    &::placeholder {
+      color: #95a5a6;
+    }
+  }
+}
+
+// 选择器样式
+.el-select {
+  .el-input {
+    .el-select__caret {
+      color: #7f8c8d;
+    }
+  }
+}
+
+.el-select-dropdown {
+  background-color: #ffffff;
+  border: 1px solid #dfe4ea;
+  
+  .el-select-dropdown__item {
+    color: #2c3e50;
+    
+    &.hover, &:hover {
+      background-color: #f0f7ff;
+    }
+    
+    &.selected {
+      color: #3498db;
+      font-weight: bold;
+    }
+  }
+}
+
+// 对话框样式
+.el-dialog {
+  background-color: #ffffff;
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  
+  .el-dialog__header {
+    border-bottom: 1px solid #ecf0f1;
+    
+    .el-dialog__title {
+      color: #2c3e50;
+      font-weight: bold;
+    }
+  }
+  
+  .el-dialog__body {
+    color: #2c3e50;
+  }
+  
+  .el-dialog__footer {
+    border-top: 1px solid #ecf0f1;
+  }
+}
+
+// 标签样式
+.el-tag {
+  background-color: #f8fafc;
+  border-color: #dfe4ea;
+  color: #34495e;
+  
+  &--primary {
+    background-color: rgba(52, 152, 219, 0.1);
+    border-color: #3498db;
+    color: #3498db;
+  }
+  
+  &--success {
+    background-color: rgba(46, 204, 113, 0.1);
+    border-color: #2ecc71;
+    color: #2ecc71;
+  }
+  
+  &--warning {
+    background-color: rgba(243, 156, 18, 0.1);
+    border-color: #f39c12;
+    color: #f39c12;
+  }
+  
+  &--danger {
+    background-color: rgba(231, 76, 60, 0.1);
+    border-color: #e74c3c;
+    color: #e74c3c;
+  }
+  
+  &--info {
+    background-color: rgba(91, 192, 222, 0.1);
+    border-color: #5bc0de;
+    color: #5bc0de;
+  }
+}
+
+// 加载样式
+.el-loading-mask {
+  background-color: rgba(245, 247, 250, 0.8);
+  
+  .el-loading-spinner {
+    .path {
+      stroke: #3498db;
+    }
+    
+    .el-loading-text {
+      color: #34495e;
+    }
+  }
+}
+
+// 消息提示样式
+.el-message {
+  background-color: #ffffff;
+  border-color: #dfe4ea;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  
+  &--success {
+    background-color: rgba(46, 204, 113, 0.1);
+    border-color: #2ecc71;
+    
+    .el-message__content {
+      color: #2c3e50;
+    }
+  }
+  
+  &--warning {
+    background-color: rgba(243, 156, 18, 0.1);
+    border-color: #f39c12;
+    
+    .el-message__content {
+      color: #2c3e50;
+    }
+  }
+  
+  &--error {
+    background-color: rgba(231, 76, 60, 0.1);
+    border-color: #e74c3c;
+    
+    .el-message__content {
+      color: #2c3e50;
+    }
+  }
+  
+  &--info {
+    background-color: rgba(91, 192, 222, 0.1);
+    border-color: #5bc0de;
+    
+    .el-message__content {
+      color: #2c3e50;
+    }
+  }
+}
+
+// 菜单样式
+.el-menu {
+  background-color: #ffffff;
+  border-right: 1px solid #ecf0f1;
+  
+  .el-menu-item {
+    color: #34495e;
+    
+    &:hover {
+      background-color: #f0f7ff;
+    }
+    
+    &.is-active {
+      color: #3498db;
+      background-color: rgba(52, 152, 219, 0.1);
+      
+      &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 3px;
+        height: 100%;
+        background: linear-gradient(to bottom, #3498db, #2980b9);
+      }
+    }
+  }
+  
+  .el-sub-menu__title {
+    color: #34495e;
+    
+    &:hover {
+      background-color: #f0f7ff;
+    }
+  }
+}
+
+// 滚动条样式
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: #f5f7fa;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #bdc3c7;
+  border-radius: 4px;
+  
+  &:hover {
+    background: #3498db;
+  }
+}
+
+// 全屏容器样式覆盖
+.fullscreen-container {
+  background-color: #f5f7fa;
+}
+
+// 内容包装器样式覆盖
+.content-wrapper {
+  background-color: transparent;
+}
+
+// 表格容器样式覆盖
+.table-container {
+  background-color: transparent;
+}
+
+// 搜索栏样式覆盖
+.search-bar, .search-container {
+  background-color: #ffffff;
+  border: 1px solid #ecf0f1;
+  border-radius: 6px;
+} 

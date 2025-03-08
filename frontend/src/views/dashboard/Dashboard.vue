@@ -1,11 +1,11 @@
 <template>
   <div class="dashboard-container fullscreen-container">
-    <h2>系统概览</h2>
+    <h2 class="dashboard-title">系统概览</h2>
     
     <div class="content-wrapper">
       <!-- 数据卡片 -->
       <div class="data-cards">
-        <el-card class="data-card" shadow="hover">
+        <el-card class="data-card ocean-card" shadow="hover">
           <template #header>
             <div class="card-header">
               <span>项目数量</span>
@@ -15,12 +15,12 @@
           <div class="card-content">
             <div class="card-value">{{ summary.project_count || 0 }}</div>
             <div class="card-footer">
-              <span>最近7天新增: {{ summary.recent_testcase_count || 0 }}</span>
+              <span>最近7天新增: {{ summary.recent_project_count || 0 }}</span>
             </div>
           </div>
         </el-card>
         
-        <el-card class="data-card" shadow="hover">
+        <el-card class="data-card ocean-card" shadow="hover">
           <template #header>
             <div class="card-header">
               <span>测试用例数量</span>
@@ -35,7 +35,7 @@
           </div>
         </el-card>
         
-        <el-card class="data-card" shadow="hover">
+        <el-card class="data-card ocean-card" shadow="hover">
           <template #header>
             <div class="card-header">
               <span>测试计划数量</span>
@@ -50,7 +50,7 @@
           </div>
         </el-card>
         
-        <el-card class="data-card" shadow="hover">
+        <el-card class="data-card ocean-card" shadow="hover">
           <template #header>
             <div class="card-header">
               <span>测试执行数量</span>
@@ -81,7 +81,7 @@
       
       <!-- 统计数据 -->
       <div class="chart-container">
-        <el-card class="chart-card">
+        <el-card class="chart-card ocean-card" shadow="hover">
           <template #header>
             <div class="card-header">
               <span>测试用例状态分布</span>
@@ -95,7 +95,7 @@
           </div>
         </el-card>
         
-        <el-card class="chart-card">
+        <el-card class="chart-card ocean-card" shadow="hover">
           <template #header>
             <div class="card-header">
               <span>测试用例优先级分布</span>
@@ -109,7 +109,7 @@
           </div>
         </el-card>
         
-        <el-card class="chart-card">
+        <el-card class="chart-card ocean-card" shadow="hover">
           <template #header>
             <div class="card-header">
               <span>测试计划状态分布</span>
@@ -123,7 +123,7 @@
           </div>
         </el-card>
         
-        <el-card class="chart-card">
+        <el-card class="chart-card ocean-card" shadow="hover">
           <template #header>
             <div class="card-header">
               <span>测试结果状态分布</span>
@@ -256,6 +256,24 @@ const getPriorityText = (priority) => {
   /* 移除原有的padding，使用fullscreen-container的padding */
 }
 
+.dashboard-title {
+  color: #2c3e50;
+  font-size: 28px;
+  margin-bottom: 25px;
+  position: relative;
+  display: inline-block;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    width: 50px;
+    height: 3px;
+    background: linear-gradient(to right, #3498db, #2980b9);
+  }
+}
+
 .data-cards {
   display: flex;
   flex-wrap: wrap;
@@ -284,13 +302,14 @@ const getPriorityText = (priority) => {
 .card-value {
   font-size: 36px;
   font-weight: bold;
-  color: #409EFF;
+  color: #3498db;
   margin-bottom: 10px;
+  text-shadow: 0 0 10px rgba(52, 152, 219, 0.3);
 }
 
 .card-footer {
   font-size: 14px;
-  color: #909399;
+  color: #7f8c8d;
 }
 
 .project-selector {
@@ -298,6 +317,10 @@ const getPriorityText = (priority) => {
   align-items: center;
   margin-bottom: 20px;
   gap: 10px;
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 10px 15px;
+  border-radius: 6px;
+  border: 1px solid #ecf0f1;
 }
 
 .chart-container {
@@ -324,18 +347,29 @@ const getPriorityText = (priority) => {
   flex: 1;
   min-width: 100px;
   text-align: center;
-  padding: 10px;
-  border-radius: 4px;
-  background-color: #f5f7fa;
+  padding: 15px;
+  border-radius: 6px;
+  background-color: rgba(255, 255, 255, 0.8);
+  border: 1px solid #ecf0f1;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
 }
 
 .stat-label {
   font-weight: bold;
-  margin-bottom: 5px;
+  margin-bottom: 10px;
+  color: #34495e;
 }
 
 .stat-value {
-  font-size: 24px;
-  color: #409EFF;
+  font-size: 28px;
+  background: linear-gradient(to right, #3498db, #2980b9);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: bold;
 }
 </style> 

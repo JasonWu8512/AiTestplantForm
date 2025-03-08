@@ -77,7 +77,7 @@ export function getTestPlanById(id) {
  */
 export function getTestPlanCases(id, params) {
   return request({
-    url: `/testplans/testplans/${id}/test_cases/`,
+    url: `/testplans/testplans/${id}/`,
     method: 'get',
     params
   })
