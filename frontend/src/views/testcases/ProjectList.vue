@@ -1,5 +1,5 @@
 <template>
-  <div class="project-list-container">
+  <div class="project-list-container fullscreen-container">
     <div class="page-header">
       <h2>项目管理</h2>
       <el-button type="primary" @click="handleAddProject">
@@ -30,61 +30,66 @@
       </el-select>
     </div>
     
-    <!-- 项目列表 -->
-    <el-table
-      v-loading="loading"
-      :data="projectList"
-      border
-      style="width: 100%"
-    >
-      <el-table-column prop="id" label="ID" width="80" />
-      <el-table-column prop="name" label="项目名称" min-width="150" />
-      <el-table-column prop="description" label="描述" min-width="200" show-overflow-tooltip />
-      <el-table-column prop="status_display" label="状态" width="100">
-        <template #default="scope">
-          <el-tag :type="getStatusType(scope.row.status)">
-            {{ scope.row.status_display || getStatusText(scope.row.status) }}
-          </el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column prop="test_cases_count" label="测试用例数" width="120" />
-      <el-table-column prop="creator_name" label="创建者" width="120" />
-      <el-table-column prop="created_at" label="创建时间" width="180">
-        <template #default="scope">
-          {{ formatDate(scope.row.created_at) }}
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" width="250" fixed="right">
-        <template #default="scope">
-          <el-button size="small" @click="handleViewTestCases(scope.row)">
-            查看用例
-          </el-button>
-          <el-button size="small" type="primary" @click="handleEditProject(scope.row)">
-            编辑
-          </el-button>
-          <el-button 
-            size="small" 
-            type="danger" 
-            @click="handleDeleteProject(scope.row)"
-            :disabled="scope.row.status === 'deleted'"
-          >
-            删除
-          </el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-    
-    <!-- 分页 -->
-    <div class="pagination-container">
-      <el-pagination
-        v-model:current-page="currentPage"
-        v-model:page-size="pageSize"
-        :page-sizes="[10, 20, 50, 100]"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="total"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-      />
+    <div class="content-wrapper">
+      <!-- 项目列表 -->
+      <div class="table-container">
+        <el-table
+          v-loading="loading"
+          :data="projectList"
+          border
+          style="width: 100%"
+          height="100%"
+        >
+          <el-table-column prop="id" label="ID" width="80" />
+          <el-table-column prop="name" label="项目名称" min-width="150" />
+          <el-table-column prop="description" label="描述" min-width="200" show-overflow-tooltip />
+          <el-table-column prop="status_display" label="状态" width="100">
+            <template #default="scope">
+              <el-tag :type="getStatusType(scope.row.status)">
+                {{ scope.row.status_display || getStatusText(scope.row.status) }}
+              </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column prop="test_cases_count" label="测试用例数" width="120" />
+          <el-table-column prop="creator_name" label="创建者" width="120" />
+          <el-table-column prop="created_at" label="创建时间" width="180">
+            <template #default="scope">
+              {{ formatDate(scope.row.created_at) }}
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" width="250" fixed="right">
+            <template #default="scope">
+              <el-button size="small" @click="handleViewTestCases(scope.row)">
+                查看用例
+              </el-button>
+              <el-button size="small" type="primary" @click="handleEditProject(scope.row)">
+                编辑
+              </el-button>
+              <el-button 
+                size="small" 
+                type="danger" 
+                @click="handleDeleteProject(scope.row)"
+                :disabled="scope.row.status === 'deleted'"
+              >
+                删除
+              </el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+      
+      <!-- 分页 -->
+      <div class="pagination-container">
+        <el-pagination
+          v-model:current-page="currentPage"
+          v-model:page-size="pageSize"
+          :page-sizes="[10, 20, 50, 100]"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="total"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+        />
+      </div>
     </div>
     
     <!-- 项目表单对话框 -->
@@ -186,11 +191,13 @@ const fetchProjects = async () => {
       limit: pageSize.value,
       search: searchKeyword.value
     })
-    projectList.value = response.data.items
-    total.value = response.data.total
+    projectList.value = response.data.items || []
+    total.value = response.data.total || 0
   } catch (error) {
     console.error('获取项目列表失败:', error)
-    ElMessage.error('获取项目列表失败')
+    // 不显示错误提示，只在控制台记录错误
+    projectList.value = []
+    total.value = 0
   } finally {
     loading.value = false
   }
@@ -350,7 +357,7 @@ const formatDate = (dateString) => {
 
 <style scoped>
 .project-list-container {
-  padding: 20px;
+  /* 移除原有的padding，使用fullscreen-container的padding */
 }
 
 .page-header {
@@ -370,9 +377,5 @@ const formatDate = (dateString) => {
   width: 300px;
 }
 
-.pagination-container {
-  margin-top: 20px;
-  display: flex;
-  justify-content: flex-end;
-}
+/* 使用fullscreen-container中的pagination-container样式 */
 </style> 

@@ -1,0 +1,36 @@
+/* 全屏容器样式 */
+.fullscreen-container {
+  min-height: calc(100vh - 60px); /* 减去顶部导航栏的高度 */
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  box-sizing: border-box;
+  background-color: #f5f7fa;
+}
+
+/* 内容区域样式，使其占据剩余空间 */
+.content-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 表格容器样式，使表格占据剩余空间 */
+.table-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0;
+}
+
+/* 表格样式，使表格占据剩余空间 */
+.el-table {
+  flex: 1;
+}
+
+/* 分页容器样式，固定在底部 */
+.pagination-container {
+  margin-top: 20px;
+  margin-bottom: 0;
+  padding-bottom: 0;
+} 

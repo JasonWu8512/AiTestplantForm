@@ -1,5 +1,5 @@
 <template>
-  <div class="testplan-list-container">
+  <div class="testplan-list-container fullscreen-container">
     <div class="page-header">
       <h2>测试计划管理</h2>
       <el-button type="primary" @click="handleAddTestPlan">
@@ -41,64 +41,69 @@
       </el-select>
     </div>
     
-    <!-- 测试计划列表 -->
-    <el-table
-      v-loading="loading"
-      :data="testPlanList"
-      border
-      style="width: 100%"
-    >
-      <el-table-column prop="id" label="ID" width="80" />
-      <el-table-column prop="name" label="计划名称" min-width="150" show-overflow-tooltip />
-      <el-table-column prop="description" label="描述" min-width="200" show-overflow-tooltip />
-      <el-table-column prop="status_display" label="状态" width="100">
-        <template #default="scope">
-          <el-tag :type="getStatusType(scope.row.status)">
-            {{ scope.row.status_display || getStatusText(scope.row.status) }}
-          </el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column prop="project_name" label="所属项目" width="150" />
-      <el-table-column prop="test_cases_count" label="测试用例数" width="120" />
-      <el-table-column prop="creator_name" label="创建者" width="120" />
-      <el-table-column label="时间范围" width="180">
-        <template #default="scope">
-          <div v-if="scope.row.start_time || scope.row.end_time">
-            {{ formatDate(scope.row.start_time) }} 至 {{ formatDate(scope.row.end_time) }}
-          </div>
-          <div v-else>未设置</div>
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" width="250" fixed="right">
-        <template #default="scope">
-          <el-button size="small" @click="handleViewTestPlan(scope.row)">
-            查看
-          </el-button>
-          <el-button size="small" type="primary" @click="handleEditTestPlan(scope.row)">
-            编辑
-          </el-button>
-          <el-button 
-            size="small" 
-            type="danger" 
-            @click="handleDeleteTestPlan(scope.row)"
-          >
-            删除
-          </el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-    
-    <!-- 分页 -->
-    <div class="pagination-container">
-      <el-pagination
-        v-model:current-page="currentPage"
-        v-model:page-size="pageSize"
-        :page-sizes="[10, 20, 50, 100]"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="total"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-      />
+    <div class="content-wrapper">
+      <!-- 测试计划列表 -->
+      <div class="table-container">
+        <el-table
+          v-loading="loading"
+          :data="testPlanList"
+          border
+          style="width: 100%"
+          height="100%"
+        >
+          <el-table-column prop="id" label="ID" width="80" />
+          <el-table-column prop="name" label="计划名称" min-width="150" show-overflow-tooltip />
+          <el-table-column prop="description" label="描述" min-width="200" show-overflow-tooltip />
+          <el-table-column prop="status_display" label="状态" width="100">
+            <template #default="scope">
+              <el-tag :type="getStatusType(scope.row.status)">
+                {{ scope.row.status_display || getStatusText(scope.row.status) }}
+              </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column prop="project_name" label="所属项目" width="150" />
+          <el-table-column prop="test_cases_count" label="测试用例数" width="120" />
+          <el-table-column prop="creator_name" label="创建者" width="120" />
+          <el-table-column label="时间范围" width="180">
+            <template #default="scope">
+              <div v-if="scope.row.start_time || scope.row.end_time">
+                {{ formatDate(scope.row.start_time) }} 至 {{ formatDate(scope.row.end_time) }}
+              </div>
+              <div v-else>未设置</div>
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" width="250" fixed="right">
+            <template #default="scope">
+              <el-button size="small" @click="handleViewTestPlan(scope.row)">
+                查看
+              </el-button>
+              <el-button size="small" type="primary" @click="handleEditTestPlan(scope.row)">
+                编辑
+              </el-button>
+              <el-button 
+                size="small" 
+                type="danger" 
+                @click="handleDeleteTestPlan(scope.row)"
+              >
+                删除
+              </el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+      
+      <!-- 分页 -->
+      <div class="pagination-container">
+        <el-pagination
+          v-model:current-page="currentPage"
+          v-model:page-size="pageSize"
+          :page-sizes="[10, 20, 50, 100]"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="total"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+        />
+      </div>
     </div>
     
     <!-- 测试计划表单对话框 -->
@@ -381,13 +386,14 @@ onMounted(async () => {
 const loadProjectOptions = async () => {
   try {
     const response = await getProjects()
-    projectOptions.value = response.data.items.map(project => ({
+    projectOptions.value = (response.data.items || []).map(project => ({
       value: project.id,
       label: project.name
     }))
   } catch (error) {
     console.error('加载项目选项失败:', error)
-    ElMessage.error('加载项目选项失败')
+    // 不显示错误提示，只在控制台记录错误
+    projectOptions.value = []
   }
 }
 
@@ -412,11 +418,13 @@ const fetchTestPlans = async () => {
     }
     
     const response = await getTestPlans(params)
-    testPlanList.value = response.data.items
-    total.value = response.data.total
+    testPlanList.value = response.data.items || []
+    total.value = response.data.total || 0
   } catch (error) {
     console.error('获取测试计划列表失败:', error)
-    ElMessage.error('获取测试计划列表失败')
+    // 不显示错误提示，只在控制台记录错误
+    testPlanList.value = []
+    total.value = 0
   } finally {
     loading.value = false
   }
@@ -500,9 +508,11 @@ const loadTestPlanDetail = async (id) => {
     
     // 加载测试用例
     loadTestCases(id)
+    
+    dialogVisible.value = true
   } catch (error) {
-    ElMessage.error('获取测试计划详情失败')
-    console.error(error)
+    console.error('获取测试计划详情失败:', error)
+    // 不显示错误提示，只在控制台记录错误
   }
 }
 
@@ -515,8 +525,9 @@ const loadTestCases = async (planId) => {
     const response = await getTestPlanCases(planId)
     testCases.value = response.data.items || []
   } catch (error) {
-    ElMessage.error('获取测试用例失败')
-    console.error(error)
+    console.error('获取测试用例失败:', error)
+    // 不显示错误提示，只在控制台记录错误
+    testCases.value = []
   } finally {
     testCasesLoading.value = false
   }
@@ -615,14 +626,16 @@ const fetchAvailableCases = async () => {
     
     // 过滤掉已经关联的测试用例
     const existingCaseIds = testCases.value.map(item => item.case_detail.id)
-    availableCases.value = (response.data.results || response.data).filter(
+    availableCases.value = (response.data.results || response.data || []).filter(
       item => !existingCaseIds.includes(item.id)
     )
     
     casesTotal.value = response.data.count || availableCases.value.length
   } catch (error) {
     console.error('获取可用测试用例失败:', error)
-    ElMessage.error('获取可用测试用例失败')
+    // 不显示错误提示，只在控制台记录错误
+    availableCases.value = []
+    casesTotal.value = 0
   } finally {
     availableCasesLoading.value = false
   }
@@ -780,7 +793,7 @@ const formatDate = (dateString) => {
 
 <style scoped>
 .testplan-list-container {
-  padding: 20px;
+  /* 移除原有的padding，使用fullscreen-container的padding */
 }
 
 .page-header {
@@ -792,8 +805,12 @@ const formatDate = (dateString) => {
 
 .search-bar {
   display: flex;
-  margin-bottom: 20px;
+  flex-wrap: wrap;
   gap: 10px;
+  margin-bottom: 20px;
+  background-color: #f5f7fa;
+  padding: 15px;
+  border-radius: 4px;
 }
 
 .search-bar .el-input {

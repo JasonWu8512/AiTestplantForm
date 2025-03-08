@@ -1,5 +1,5 @@
 <template>
-  <div class="execution-list-container">
+  <div class="execution-list-container fullscreen-container">
     <div class="execution-header">
       <h2>测试执行管理</h2>
       <div class="execution-actions">
@@ -29,104 +29,109 @@
       </el-form>
     </div>
 
-    <!-- 测试执行列表 -->
-    <el-table
-      v-loading="loading"
-      :data="executionList"
-      border
-      style="width: 100%"
-      @row-click="handleRowClick"
-    >
-      <el-table-column prop="id" label="ID" width="80"></el-table-column>
-      <el-table-column prop="plan.name" label="测试计划" min-width="180"></el-table-column>
-      <el-table-column prop="executor.username" label="执行者" width="120"></el-table-column>
-      <el-table-column prop="status_display" label="状态" width="100">
-        <template #default="scope">
-          <el-tag :type="getStatusType(scope.row.status)">{{ scope.row.status_display }}</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column prop="start_time" label="开始时间" width="180">
-        <template #default="scope">
-          {{ scope.row.start_time ? formatDateTime(scope.row.start_time) : '-' }}
-        </template>
-      </el-table-column>
-      <el-table-column prop="end_time" label="结束时间" width="180">
-        <template #default="scope">
-          {{ scope.row.end_time ? formatDateTime(scope.row.end_time) : '-' }}
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" width="280" fixed="right">
-        <template #default="scope">
-          <el-button
-            v-if="scope.row.status === 'pending'"
-            type="success"
-            size="small"
-            @click.stop="handleStart(scope.row)"
-          >
-            开始执行
-          </el-button>
-          <el-button
-            v-if="scope.row.status === 'running'"
-            type="warning"
-            size="small"
-            @click.stop="handlePause(scope.row)"
-          >
-            暂停
-          </el-button>
-          <el-button
-            v-if="scope.row.status === 'paused'"
-            type="success"
-            size="small"
-            @click.stop="handleStart(scope.row)"
-          >
-            继续执行
-          </el-button>
-          <el-button
-            v-if="['running', 'paused'].includes(scope.row.status)"
-            type="info"
-            size="small"
-            @click.stop="handleComplete(scope.row)"
-          >
-            完成
-          </el-button>
-          <el-button
-            v-if="['pending', 'running', 'paused'].includes(scope.row.status)"
-            type="danger"
-            size="small"
-            @click.stop="handleAbort(scope.row)"
-          >
-            中止
-          </el-button>
-          <el-button
-            type="primary"
-            size="small"
-            @click.stop="handleView(scope.row)"
-          >
-            查看
-          </el-button>
-          <el-button
-            v-if="scope.row.status === 'pending'"
-            type="danger"
-            size="small"
-            @click.stop="handleDelete(scope.row)"
-          >
-            删除
-          </el-button>
-        </template>
-      </el-table-column>
-    </el-table>
+    <div class="content-wrapper">
+      <!-- 测试执行列表 -->
+      <div class="table-container">
+        <el-table
+          v-loading="loading"
+          :data="executionList"
+          border
+          style="width: 100%"
+          height="100%"
+          @row-click="handleRowClick"
+        >
+          <el-table-column prop="id" label="ID" width="80"></el-table-column>
+          <el-table-column prop="plan.name" label="测试计划" min-width="180"></el-table-column>
+          <el-table-column prop="executor.username" label="执行者" width="120"></el-table-column>
+          <el-table-column prop="status_display" label="状态" width="100">
+            <template #default="scope">
+              <el-tag :type="getStatusType(scope.row.status)">{{ scope.row.status_display }}</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column prop="start_time" label="开始时间" width="180">
+            <template #default="scope">
+              {{ scope.row.start_time ? formatDateTime(scope.row.start_time) : '-' }}
+            </template>
+          </el-table-column>
+          <el-table-column prop="end_time" label="结束时间" width="180">
+            <template #default="scope">
+              {{ scope.row.end_time ? formatDateTime(scope.row.end_time) : '-' }}
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" width="280" fixed="right">
+            <template #default="scope">
+              <el-button
+                v-if="scope.row.status === 'pending'"
+                type="success"
+                size="small"
+                @click.stop="handleStart(scope.row)"
+              >
+                开始执行
+              </el-button>
+              <el-button
+                v-if="scope.row.status === 'running'"
+                type="warning"
+                size="small"
+                @click.stop="handlePause(scope.row)"
+              >
+                暂停
+              </el-button>
+              <el-button
+                v-if="scope.row.status === 'paused'"
+                type="success"
+                size="small"
+                @click.stop="handleStart(scope.row)"
+              >
+                继续执行
+              </el-button>
+              <el-button
+                v-if="['running', 'paused'].includes(scope.row.status)"
+                type="info"
+                size="small"
+                @click.stop="handleComplete(scope.row)"
+              >
+                完成
+              </el-button>
+              <el-button
+                v-if="['pending', 'running', 'paused'].includes(scope.row.status)"
+                type="danger"
+                size="small"
+                @click.stop="handleAbort(scope.row)"
+              >
+                中止
+              </el-button>
+              <el-button
+                type="primary"
+                size="small"
+                @click.stop="handleView(scope.row)"
+              >
+                查看
+              </el-button>
+              <el-button
+                v-if="scope.row.status === 'pending'"
+                type="danger"
+                size="small"
+                @click.stop="handleDelete(scope.row)"
+              >
+                删除
+              </el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
 
-    <!-- 分页 -->
-    <div class="pagination-container">
-      <el-pagination
-        v-model:current-page="pagination.currentPage"
-        v-model:page-size="pagination.pageSize"
-        :page-sizes="[10, 20, 50, 100]"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="pagination.total"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-      ></el-pagination>
+      <!-- 分页 -->
+      <div class="pagination-container">
+        <el-pagination
+          v-model:current-page="pagination.currentPage"
+          v-model:page-size="pagination.pageSize"
+          :page-sizes="[10, 20, 50, 100]"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="pagination.total"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+        />
+      </div>
     </div>
 
     <!-- 从测试计划创建测试执行对话框 -->
@@ -226,11 +231,12 @@ const fetchExecutionList = async () => {
       status: searchForm.status || undefined
     }
     const response = await getExecutionList(params)
-    executionList.value = response.results
-    pagination.total = response.count
+    executionList.value = response.results || []
+    pagination.total = response.count || 0
   } catch (error) {
     console.error('获取测试执行列表失败:', error)
-    ElMessage.error('获取测试执行列表失败')
+    executionList.value = []
+    pagination.total = 0
   } finally {
     loading.value = false
   }
@@ -240,10 +246,10 @@ const fetchExecutionList = async () => {
 const fetchTestPlanList = async () => {
   try {
     const response = await getTestPlans({ status: 'ready,in_progress' })
-    planOptions.value = response.results
+    planOptions.value = response.results || []
   } catch (error) {
     console.error('获取测试计划列表失败:', error)
-    ElMessage.error('获取测试计划列表失败')
+    planOptions.value = []
   }
 }
 
@@ -414,7 +420,7 @@ onMounted(() => {
 
 <style scoped>
 .execution-list-container {
-  padding: 20px;
+  /* 移除原有的padding，使用fullscreen-container的padding */
 }
 
 .execution-header {
@@ -431,9 +437,5 @@ onMounted(() => {
   border-radius: 4px;
 }
 
-.pagination-container {
-  margin-top: 20px;
-  display: flex;
-  justify-content: flex-end;
-}
+/* 使用fullscreen-container中的pagination-container样式 */
 </style> 

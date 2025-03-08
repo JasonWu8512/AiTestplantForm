@@ -1,5 +1,5 @@
 <template>
-  <div class="testcase-list-container">
+  <div class="testcase-list-container fullscreen-container">
     <div class="page-header">
       <div class="title-section">
         <h2>测试用例管理</h2>
@@ -75,67 +75,72 @@
       </el-select>
     </div>
     
-    <!-- 测试用例列表 -->
-    <el-table
-      v-loading="loading"
-      :data="testCaseList"
-      border
-      style="width: 100%"
-    >
-      <el-table-column prop="id" label="ID" width="80" />
-      <el-table-column prop="name" label="用例名称" min-width="150" show-overflow-tooltip />
-      <el-table-column prop="priority_display" label="优先级" width="100">
-        <template #default="scope">
-          <el-tag :type="getPriorityType(scope.row.priority)">
-            {{ scope.row.priority_display || getPriorityText(scope.row.priority) }}
-          </el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column prop="status_display" label="状态" width="100">
-        <template #default="scope">
-          <el-tag :type="getStatusType(scope.row.status)">
-            {{ scope.row.status_display || getStatusText(scope.row.status) }}
-          </el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column prop="project_name" label="所属项目" width="150" v-if="!currentProject" />
-      <el-table-column prop="creator_name" label="创建者" width="120" />
-      <el-table-column prop="created_at" label="创建时间" width="180">
-        <template #default="scope">
-          {{ formatDate(scope.row.created_at) }}
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" width="200" fixed="right">
-        <template #default="scope">
-          <el-button size="small" @click="handleViewTestCase(scope.row)">
-            查看
-          </el-button>
-          <el-button size="small" type="primary" @click="handleEditTestCase(scope.row)">
-            编辑
-          </el-button>
-          <el-button 
-            size="small" 
-            type="danger" 
-            @click="handleDeleteTestCase(scope.row)"
-            :disabled="scope.row.status === 'deleted'"
-          >
-            删除
-          </el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-    
-    <!-- 分页 -->
-    <div class="pagination-container">
-      <el-pagination
-        v-model:current-page="currentPage"
-        v-model:page-size="pageSize"
-        :page-sizes="[10, 20, 50, 100]"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="total"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-      />
+    <div class="content-wrapper">
+      <!-- 测试用例列表 -->
+      <div class="table-container">
+        <el-table
+          v-loading="loading"
+          :data="testCaseList"
+          border
+          style="width: 100%"
+          height="100%"
+        >
+          <el-table-column prop="id" label="ID" width="80" />
+          <el-table-column prop="name" label="用例名称" min-width="150" show-overflow-tooltip />
+          <el-table-column prop="priority_display" label="优先级" width="100">
+            <template #default="scope">
+              <el-tag :type="getPriorityType(scope.row.priority)">
+                {{ scope.row.priority_display || getPriorityText(scope.row.priority) }}
+              </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column prop="status_display" label="状态" width="100">
+            <template #default="scope">
+              <el-tag :type="getStatusType(scope.row.status)">
+                {{ scope.row.status_display || getStatusText(scope.row.status) }}
+              </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column prop="project_name" label="所属项目" width="150" v-if="!currentProject" />
+          <el-table-column prop="creator_name" label="创建者" width="120" />
+          <el-table-column prop="created_at" label="创建时间" width="180">
+            <template #default="scope">
+              {{ formatDate(scope.row.created_at) }}
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" width="200" fixed="right">
+            <template #default="scope">
+              <el-button size="small" @click="handleViewTestCase(scope.row)">
+                查看
+              </el-button>
+              <el-button size="small" type="primary" @click="handleEditTestCase(scope.row)">
+                编辑
+              </el-button>
+              <el-button 
+                size="small" 
+                type="danger" 
+                @click="handleDeleteTestCase(scope.row)"
+                :disabled="scope.row.status === 'deleted'"
+              >
+                删除
+              </el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+      
+      <!-- 分页 -->
+      <div class="pagination-container">
+        <el-pagination
+          v-model:current-page="currentPage"
+          v-model:page-size="pageSize"
+          :page-sizes="[10, 20, 50, 100]"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="total"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+        />
+      </div>
     </div>
     
     <!-- 测试用例表单对话框 -->
@@ -378,13 +383,13 @@ onMounted(async () => {
 const loadProjectOptions = async () => {
   try {
     const response = await getProjects()
-    projectOptions.value = response.data.items.map(project => ({
+    projectOptions.value = (response.data.items || []).map(project => ({
       value: project.id,
       label: project.name
     }))
   } catch (error) {
     console.error('加载项目选项失败:', error)
-    ElMessage.error('加载项目选项失败')
+    projectOptions.value = []
   }
 }
 
@@ -397,7 +402,6 @@ const loadProjectInfo = async (id) => {
     currentProject.value = response.data
   } catch (error) {
     console.error('加载项目信息失败:', error)
-    ElMessage.error('加载项目信息失败')
   }
 }
 
@@ -428,11 +432,12 @@ const fetchTestCases = async () => {
     }
     
     const response = await getTestCases(params)
-    testCaseList.value = response.data.items
-    total.value = response.data.total
+    testCaseList.value = response.data.items || []
+    total.value = response.data.total || 0
   } catch (error) {
     console.error('获取测试用例列表失败:', error)
-    ElMessage.error('获取测试用例列表失败')
+    testCaseList.value = []
+    total.value = 0
   } finally {
     loading.value = false
   }
@@ -529,7 +534,6 @@ const loadTestCaseDetail = async (id) => {
     dialogVisible.value = true
   } catch (error) {
     console.error('加载测试用例详情失败:', error)
-    ElMessage.error('加载测试用例详情失败')
   }
 }
 
@@ -773,7 +777,7 @@ const formatDate = (dateString) => {
 
 <style scoped>
 .testcase-list-container {
-  padding: 20px;
+  /* 移除原有的padding，使用fullscreen-container的padding */
 }
 
 .page-header {
@@ -789,7 +793,7 @@ const formatDate = (dateString) => {
 }
 
 .project-name {
-  margin-left: 10px;
+  margin-left: 15px;
   font-size: 16px;
   color: #606266;
 }
@@ -801,16 +805,26 @@ const formatDate = (dateString) => {
 
 .search-bar {
   display: flex;
-  margin-bottom: 20px;
+  flex-wrap: wrap;
   gap: 10px;
+  margin-bottom: 20px;
+  background-color: #f5f7fa;
+  padding: 15px;
+  border-radius: 4px;
 }
 
-.search-bar .el-input {
-  width: 300px;
+.content-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.table-container {
+  flex: 1;
+  margin-bottom: 20px;
 }
 
 .pagination-container {
-  margin-top: 20px;
   display: flex;
   justify-content: flex-end;
 }

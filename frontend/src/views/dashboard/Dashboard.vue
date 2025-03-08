@@ -1,140 +1,142 @@
 <template>
-  <div class="dashboard-container">
+  <div class="dashboard-container fullscreen-container">
     <h2>系统概览</h2>
     
-    <!-- 数据卡片 -->
-    <div class="data-cards">
-      <el-card class="data-card" shadow="hover">
-        <template #header>
-          <div class="card-header">
-            <span>项目数量</span>
-            <el-tag type="success">活跃</el-tag>
+    <div class="content-wrapper">
+      <!-- 数据卡片 -->
+      <div class="data-cards">
+        <el-card class="data-card" shadow="hover">
+          <template #header>
+            <div class="card-header">
+              <span>项目数量</span>
+              <el-tag type="success">活跃</el-tag>
+            </div>
+          </template>
+          <div class="card-content">
+            <div class="card-value">{{ summary.project_count || 0 }}</div>
+            <div class="card-footer">
+              <span>最近7天新增: {{ summary.recent_testcase_count || 0 }}</span>
+            </div>
           </div>
-        </template>
-        <div class="card-content">
-          <div class="card-value">{{ summary.project_count || 0 }}</div>
-          <div class="card-footer">
-            <span>最近7天新增: {{ summary.recent_testcase_count || 0 }}</span>
+        </el-card>
+        
+        <el-card class="data-card" shadow="hover">
+          <template #header>
+            <div class="card-header">
+              <span>测试用例数量</span>
+              <el-tag type="success">活跃</el-tag>
+            </div>
+          </template>
+          <div class="card-content">
+            <div class="card-value">{{ summary.testcase_count || 0 }}</div>
+            <div class="card-footer">
+              <span>最近7天新增: {{ summary.recent_testcase_count || 0 }}</span>
+            </div>
           </div>
-        </div>
-      </el-card>
+        </el-card>
+        
+        <el-card class="data-card" shadow="hover">
+          <template #header>
+            <div class="card-header">
+              <span>测试计划数量</span>
+              <el-tag type="primary">进行中</el-tag>
+            </div>
+          </template>
+          <div class="card-content">
+            <div class="card-value">{{ summary.testplan_count || 0 }}</div>
+            <div class="card-footer">
+              <span>最近7天新增: {{ summary.recent_testplan_count || 0 }}</span>
+            </div>
+          </div>
+        </el-card>
+        
+        <el-card class="data-card" shadow="hover">
+          <template #header>
+            <div class="card-header">
+              <span>测试执行数量</span>
+              <el-tag type="warning">待执行</el-tag>
+            </div>
+          </template>
+          <div class="card-content">
+            <div class="card-value">{{ summary.execution_count || 0 }}</div>
+            <div class="card-footer">
+              <span>最近7天完成: {{ summary.recent_execution_count || 0 }}</span>
+            </div>
+          </div>
+        </el-card>
+      </div>
       
-      <el-card class="data-card" shadow="hover">
-        <template #header>
-          <div class="card-header">
-            <span>测试用例数量</span>
-            <el-tag type="success">活跃</el-tag>
-          </div>
-        </template>
-        <div class="card-content">
-          <div class="card-value">{{ summary.testcase_count || 0 }}</div>
-          <div class="card-footer">
-            <span>最近7天新增: {{ summary.recent_testcase_count || 0 }}</span>
-          </div>
-        </div>
-      </el-card>
+      <!-- 项目选择器 -->
+      <div class="project-selector">
+        <span>选择项目:</span>
+        <el-select v-model="selectedProject" placeholder="全部项目" clearable @change="fetchStatistics">
+          <el-option
+            v-for="project in projects"
+            :key="project.id"
+            :label="project.name"
+            :value="project.id"
+          ></el-option>
+        </el-select>
+      </div>
       
-      <el-card class="data-card" shadow="hover">
-        <template #header>
-          <div class="card-header">
-            <span>测试计划数量</span>
-            <el-tag type="primary">进行中</el-tag>
+      <!-- 统计数据 -->
+      <div class="chart-container">
+        <el-card class="chart-card">
+          <template #header>
+            <div class="card-header">
+              <span>测试用例状态分布</span>
+            </div>
+          </template>
+          <div class="static-chart">
+            <div v-for="(count, status) in statistics.testcase_status" :key="status" class="stat-item">
+              <div class="stat-label">{{ getStatusText(status) }}</div>
+              <div class="stat-value">{{ count }}</div>
+            </div>
           </div>
-        </template>
-        <div class="card-content">
-          <div class="card-value">{{ summary.testplan_count || 0 }}</div>
-          <div class="card-footer">
-            <span>最近7天新增: {{ summary.recent_testplan_count || 0 }}</span>
+        </el-card>
+        
+        <el-card class="chart-card">
+          <template #header>
+            <div class="card-header">
+              <span>测试用例优先级分布</span>
+            </div>
+          </template>
+          <div class="static-chart">
+            <div v-for="(count, priority) in statistics.testcase_priority" :key="priority" class="stat-item">
+              <div class="stat-label">{{ getPriorityText(priority) }}</div>
+              <div class="stat-value">{{ count }}</div>
+            </div>
           </div>
-        </div>
-      </el-card>
-      
-      <el-card class="data-card" shadow="hover">
-        <template #header>
-          <div class="card-header">
-            <span>测试执行数量</span>
-            <el-tag type="warning">待执行</el-tag>
+        </el-card>
+        
+        <el-card class="chart-card">
+          <template #header>
+            <div class="card-header">
+              <span>测试计划状态分布</span>
+            </div>
+          </template>
+          <div class="static-chart">
+            <div v-for="(count, status) in statistics.testplan_status" :key="status" class="stat-item">
+              <div class="stat-label">{{ getStatusText(status) }}</div>
+              <div class="stat-value">{{ count }}</div>
+            </div>
           </div>
-        </template>
-        <div class="card-content">
-          <div class="card-value">{{ summary.execution_count || 0 }}</div>
-          <div class="card-footer">
-            <span>最近7天完成: {{ summary.recent_execution_count || 0 }}</span>
+        </el-card>
+        
+        <el-card class="chart-card">
+          <template #header>
+            <div class="card-header">
+              <span>测试结果状态分布</span>
+            </div>
+          </template>
+          <div class="static-chart">
+            <div v-for="(count, status) in statistics.testresult_status" :key="status" class="stat-item">
+              <div class="stat-label">{{ getResultStatusText(status) }}</div>
+              <div class="stat-value">{{ count }}</div>
+            </div>
           </div>
-        </div>
-      </el-card>
-    </div>
-    
-    <!-- 项目选择器 -->
-    <div class="project-selector">
-      <span>选择项目:</span>
-      <el-select v-model="selectedProject" placeholder="全部项目" clearable @change="fetchStatistics">
-        <el-option
-          v-for="project in projects"
-          :key="project.id"
-          :label="project.name"
-          :value="project.id"
-        ></el-option>
-      </el-select>
-    </div>
-    
-    <!-- 统计数据 -->
-    <div class="statistics-container">
-      <el-card class="chart-card">
-        <template #header>
-          <div class="card-header">
-            <span>测试用例状态分布</span>
-          </div>
-        </template>
-        <div class="static-chart">
-          <div v-for="(count, status) in statistics.testcase_status" :key="status" class="stat-item">
-            <div class="stat-label">{{ getStatusText(status) }}</div>
-            <div class="stat-value">{{ count }}</div>
-          </div>
-        </div>
-      </el-card>
-      
-      <el-card class="chart-card">
-        <template #header>
-          <div class="card-header">
-            <span>测试用例优先级分布</span>
-          </div>
-        </template>
-        <div class="static-chart">
-          <div v-for="(count, priority) in statistics.testcase_priority" :key="priority" class="stat-item">
-            <div class="stat-label">{{ getPriorityText(priority) }}</div>
-            <div class="stat-value">{{ count }}</div>
-          </div>
-        </div>
-      </el-card>
-      
-      <el-card class="chart-card">
-        <template #header>
-          <div class="card-header">
-            <span>测试计划状态分布</span>
-          </div>
-        </template>
-        <div class="static-chart">
-          <div v-for="(count, status) in statistics.testplan_status" :key="status" class="stat-item">
-            <div class="stat-label">{{ getStatusText(status) }}</div>
-            <div class="stat-value">{{ count }}</div>
-          </div>
-        </div>
-      </el-card>
-      
-      <el-card class="chart-card">
-        <template #header>
-          <div class="card-header">
-            <span>测试结果状态分布</span>
-          </div>
-        </template>
-        <div class="static-chart">
-          <div v-for="(count, status) in statistics.testresult_status" :key="status" class="stat-item">
-            <div class="stat-label">{{ getResultStatusText(status) }}</div>
-            <div class="stat-value">{{ count }}</div>
-          </div>
-        </div>
-      </el-card>
+        </el-card>
+      </div>
     </div>
   </div>
 </template>
@@ -160,9 +162,11 @@ const selectedProject = ref(null)
 const fetchSummary = async () => {
   try {
     const response = await getSummary()
-    summary.value = response
+    summary.value = response || {}
   } catch (error) {
     console.error('获取概览数据失败:', error)
+    // 不显示错误提示，只在控制台记录错误
+    summary.value = {}
   }
 }
 
@@ -175,9 +179,25 @@ const fetchStatistics = async () => {
     }
     
     const response = await getStatistics(params)
-    statistics.value = response
+    statistics.value = response || {
+      testcase_status: {},
+      testcase_priority: {},
+      testplan_status: {},
+      testresult_status: {},
+      testcase_trend: [],
+      testresult_trend: []
+    }
   } catch (error) {
     console.error('获取统计数据失败:', error)
+    // 不显示错误提示，只在控制台记录错误
+    statistics.value = {
+      testcase_status: {},
+      testcase_priority: {},
+      testplan_status: {},
+      testresult_status: {},
+      testcase_trend: [],
+      testresult_trend: []
+    }
   }
 }
 
@@ -233,7 +253,7 @@ const getPriorityText = (priority) => {
 
 <style scoped>
 .dashboard-container {
-  padding: 20px;
+  /* 移除原有的padding，使用fullscreen-container的padding */
 }
 
 .data-cards {
@@ -245,7 +265,7 @@ const getPriorityText = (priority) => {
 
 .data-card {
   flex: 1;
-  min-width: 200px;
+  min-width: 250px;
 }
 
 .card-header {
@@ -280,15 +300,17 @@ const getPriorityText = (priority) => {
   gap: 10px;
 }
 
-.statistics-container {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+.chart-container {
+  display: flex;
+  flex-wrap: wrap;
   gap: 20px;
-  margin-top: 20px;
+  flex: 1;
 }
 
 .chart-card {
-  margin-bottom: 20px;
+  flex: 1;
+  min-width: 45%;
+  margin-bottom: 0;
 }
 
 .static-chart {
