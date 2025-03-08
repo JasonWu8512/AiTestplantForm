@@ -87,11 +87,8 @@
               <span>测试用例状态分布</span>
             </div>
           </template>
-          <div class="static-chart">
-            <div v-for="(count, status) in statistics.testcase_status" :key="status" class="stat-item">
-              <div class="stat-label">{{ getStatusText(status) }}</div>
-              <div class="stat-value">{{ count }}</div>
-            </div>
+          <div class="chart-wrapper">
+            <div ref="testcaseStatusChart" class="chart"></div>
           </div>
         </el-card>
         
@@ -101,11 +98,8 @@
               <span>测试用例优先级分布</span>
             </div>
           </template>
-          <div class="static-chart">
-            <div v-for="(count, priority) in statistics.testcase_priority" :key="priority" class="stat-item">
-              <div class="stat-label">{{ getPriorityText(priority) }}</div>
-              <div class="stat-value">{{ count }}</div>
-            </div>
+          <div class="chart-wrapper">
+            <div ref="testcasePriorityChart" class="chart"></div>
           </div>
         </el-card>
         
@@ -115,11 +109,8 @@
               <span>测试计划状态分布</span>
             </div>
           </template>
-          <div class="static-chart">
-            <div v-for="(count, status) in statistics.testplan_status" :key="status" class="stat-item">
-              <div class="stat-label">{{ getStatusText(status) }}</div>
-              <div class="stat-value">{{ count }}</div>
-            </div>
+          <div class="chart-wrapper">
+            <div ref="testplanStatusChart" class="chart"></div>
           </div>
         </el-card>
         
@@ -129,11 +120,8 @@
               <span>测试结果状态分布</span>
             </div>
           </template>
-          <div class="static-chart">
-            <div v-for="(count, status) in statistics.testresult_status" :key="status" class="stat-item">
-              <div class="stat-label">{{ getResultStatusText(status) }}</div>
-              <div class="stat-value">{{ count }}</div>
-            </div>
+          <div class="chart-wrapper">
+            <div ref="testresultStatusChart" class="chart"></div>
           </div>
         </el-card>
       </div>
@@ -142,8 +130,35 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { getSummary, getStatistics } from '@/api/dashboard'
+import * as echarts from 'echarts/core'
+import { PieChart } from 'echarts/charts'
+import { TitleComponent, TooltipComponent, LegendComponent } from 'echarts/components'
+import { LabelLayout } from 'echarts/features'
+import { CanvasRenderer } from 'echarts/renderers'
+
+// 注册必要的组件
+echarts.use([
+  PieChart,
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent,
+  LabelLayout,
+  CanvasRenderer
+])
+
+// 图表引用
+const testcaseStatusChart = ref(null)
+const testcasePriorityChart = ref(null)
+const testplanStatusChart = ref(null)
+const testresultStatusChart = ref(null)
+
+// 图表实例
+let testcaseStatusChartInstance = null
+let testcasePriorityChartInstance = null
+let testplanStatusChartInstance = null
+let testresultStatusChartInstance = null
 
 // 数据
 const summary = ref({})
@@ -187,6 +202,11 @@ const fetchStatistics = async () => {
       testcase_trend: [],
       testresult_trend: []
     }
+    
+    // 获取数据后更新图表
+    nextTick(() => {
+      renderCharts()
+    })
   } catch (error) {
     console.error('获取统计数据失败:', error)
     // 不显示错误提示，只在控制台记录错误
@@ -201,10 +221,293 @@ const fetchStatistics = async () => {
   }
 }
 
+// 渲染所有图表
+const renderCharts = () => {
+  renderTestcaseStatusChart()
+  renderTestcasePriorityChart()
+  renderTestplanStatusChart()
+  renderTestresultStatusChart()
+}
+
+// 渲染测试用例状态分布图
+const renderTestcaseStatusChart = () => {
+  if (!testcaseStatusChart.value) return
+  
+  // 如果已存在实例，销毁它
+  if (testcaseStatusChartInstance) {
+    testcaseStatusChartInstance.dispose()
+  }
+  
+  // 创建新实例
+  testcaseStatusChartInstance = echarts.init(testcaseStatusChart.value)
+  
+  // 准备数据
+  const data = Object.entries(statistics.value.testcase_status || {}).map(([status, count]) => ({
+    name: getStatusText(status),
+    value: count
+  }))
+  
+  // 设置图表选项
+  const option = {
+    tooltip: {
+      trigger: 'item',
+      formatter: '{a} <br/>{b}: {c} ({d}%)'
+    },
+    legend: {
+      orient: 'vertical',
+      left: 'left',
+      data: data.map(item => item.name)
+    },
+    series: [
+      {
+        name: '测试用例状态',
+        type: 'pie',
+        radius: ['40%', '70%'],
+        avoidLabelOverlap: false,
+        itemStyle: {
+          borderRadius: 10,
+          borderColor: '#fff',
+          borderWidth: 2
+        },
+        label: {
+          show: false,
+          position: 'center'
+        },
+        emphasis: {
+          label: {
+            show: true,
+            fontSize: '18',
+            fontWeight: 'bold'
+          }
+        },
+        labelLine: {
+          show: false
+        },
+        data: data
+      }
+    ]
+  }
+  
+  // 设置图表
+  testcaseStatusChartInstance.setOption(option)
+}
+
+// 渲染测试用例优先级分布图
+const renderTestcasePriorityChart = () => {
+  if (!testcasePriorityChart.value) return
+  
+  // 如果已存在实例，销毁它
+  if (testcasePriorityChartInstance) {
+    testcasePriorityChartInstance.dispose()
+  }
+  
+  // 创建新实例
+  testcasePriorityChartInstance = echarts.init(testcasePriorityChart.value)
+  
+  // 准备数据
+  const data = Object.entries(statistics.value.testcase_priority || {}).map(([priority, count]) => ({
+    name: getPriorityText(priority),
+    value: count
+  }))
+  
+  // 设置图表选项
+  const option = {
+    tooltip: {
+      trigger: 'item',
+      formatter: '{a} <br/>{b}: {c} ({d}%)'
+    },
+    legend: {
+      orient: 'vertical',
+      left: 'left',
+      data: data.map(item => item.name)
+    },
+    series: [
+      {
+        name: '测试用例优先级',
+        type: 'pie',
+        radius: ['40%', '70%'],
+        avoidLabelOverlap: false,
+        itemStyle: {
+          borderRadius: 10,
+          borderColor: '#fff',
+          borderWidth: 2
+        },
+        label: {
+          show: false,
+          position: 'center'
+        },
+        emphasis: {
+          label: {
+            show: true,
+            fontSize: '18',
+            fontWeight: 'bold'
+          }
+        },
+        labelLine: {
+          show: false
+        },
+        data: data
+      }
+    ]
+  }
+  
+  // 设置图表
+  testcasePriorityChartInstance.setOption(option)
+}
+
+// 渲染测试计划状态分布图
+const renderTestplanStatusChart = () => {
+  if (!testplanStatusChart.value) return
+  
+  // 如果已存在实例，销毁它
+  if (testplanStatusChartInstance) {
+    testplanStatusChartInstance.dispose()
+  }
+  
+  // 创建新实例
+  testplanStatusChartInstance = echarts.init(testplanStatusChart.value)
+  
+  // 准备数据
+  const data = Object.entries(statistics.value.testplan_status || {}).map(([status, count]) => ({
+    name: getStatusText(status),
+    value: count
+  }))
+  
+  // 设置图表选项
+  const option = {
+    tooltip: {
+      trigger: 'item',
+      formatter: '{a} <br/>{b}: {c} ({d}%)'
+    },
+    legend: {
+      orient: 'vertical',
+      left: 'left',
+      data: data.map(item => item.name)
+    },
+    series: [
+      {
+        name: '测试计划状态',
+        type: 'pie',
+        radius: ['40%', '70%'],
+        avoidLabelOverlap: false,
+        itemStyle: {
+          borderRadius: 10,
+          borderColor: '#fff',
+          borderWidth: 2
+        },
+        label: {
+          show: false,
+          position: 'center'
+        },
+        emphasis: {
+          label: {
+            show: true,
+            fontSize: '18',
+            fontWeight: 'bold'
+          }
+        },
+        labelLine: {
+          show: false
+        },
+        data: data
+      }
+    ]
+  }
+  
+  // 设置图表
+  testplanStatusChartInstance.setOption(option)
+}
+
+// 渲染测试结果状态分布图
+const renderTestresultStatusChart = () => {
+  if (!testresultStatusChart.value) return
+  
+  // 如果已存在实例，销毁它
+  if (testresultStatusChartInstance) {
+    testresultStatusChartInstance.dispose()
+  }
+  
+  // 创建新实例
+  testresultStatusChartInstance = echarts.init(testresultStatusChart.value)
+  
+  // 准备数据
+  const data = Object.entries(statistics.value.testresult_status || {}).map(([status, count]) => ({
+    name: getResultStatusText(status),
+    value: count
+  }))
+  
+  // 设置图表选项
+  const option = {
+    tooltip: {
+      trigger: 'item',
+      formatter: '{a} <br/>{b}: {c} ({d}%)'
+    },
+    legend: {
+      orient: 'vertical',
+      left: 'left',
+      data: data.map(item => item.name)
+    },
+    series: [
+      {
+        name: '测试结果状态',
+        type: 'pie',
+        radius: ['40%', '70%'],
+        avoidLabelOverlap: false,
+        itemStyle: {
+          borderRadius: 10,
+          borderColor: '#fff',
+          borderWidth: 2
+        },
+        label: {
+          show: false,
+          position: 'center'
+        },
+        emphasis: {
+          label: {
+            show: true,
+            fontSize: '18',
+            fontWeight: 'bold'
+          }
+        },
+        labelLine: {
+          show: false
+        },
+        data: data
+      }
+    ]
+  }
+  
+  // 设置图表
+  testresultStatusChartInstance.setOption(option)
+}
+
+// 处理窗口大小变化
+const handleResize = () => {
+  testcaseStatusChartInstance?.resize()
+  testcasePriorityChartInstance?.resize()
+  testplanStatusChartInstance?.resize()
+  testresultStatusChartInstance?.resize()
+}
+
 // 初始化
 onMounted(() => {
   fetchSummary()
   fetchStatistics()
+  
+  // 添加窗口大小变化监听
+  window.addEventListener('resize', handleResize)
+})
+
+// 清理
+onBeforeUnmount(() => {
+  // 移除窗口大小变化监听
+  window.removeEventListener('resize', handleResize)
+  
+  // 销毁图表实例
+  testcaseStatusChartInstance?.dispose()
+  testcasePriorityChartInstance?.dispose()
+  testplanStatusChartInstance?.dispose()
+  testresultStatusChartInstance?.dispose()
 })
 
 /**
@@ -218,7 +521,11 @@ const getStatusText = (status) => {
     archived: '已归档',
     ready: '就绪',
     in_progress: '进行中',
-    completed: '已完成'
+    completed: '已完成',
+    pending: '待处理',
+    running: '运行中',
+    paused: '已暂停',
+    aborted: '已中止'
   }
   return statusMap[status] || status
 }
@@ -232,7 +539,11 @@ const getResultStatusText = (status) => {
     passed: '通过',
     failed: '失败',
     blocked: '阻塞',
-    skipped: '跳过'
+    skipped: '跳过',
+    error: '错误',
+    warning: '警告',
+    not_run: '未运行',
+    in_progress: '执行中'
   }
   return statusMap[status] || status
 }
@@ -254,6 +565,8 @@ const getPriorityText = (priority) => {
 <style scoped>
 .dashboard-container {
   /* 移除原有的padding，使用fullscreen-container的padding */
+  overflow-y: auto; /* 确保滚动条显示 */
+  height: 100%; /* 设置高度以激活滚动 */
 }
 
 .dashboard-title {
@@ -334,6 +647,16 @@ const getPriorityText = (priority) => {
   flex: 1;
   min-width: 45%;
   margin-bottom: 0;
+}
+
+.chart-wrapper {
+  height: 300px;
+  width: 100%;
+}
+
+.chart {
+  height: 100%;
+  width: 100%;
 }
 
 .static-chart {
