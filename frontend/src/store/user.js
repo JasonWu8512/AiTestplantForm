@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import api from '@/api/user'
+import userApi from '@/api/user'
 import router from '@/router'
 
 export const useUserStore = defineStore('user', () => {
@@ -15,21 +15,37 @@ export const useUserStore = defineStore('user', () => {
   // 操作
   async function login(credentials) {
     try {
-      const response = await api.login(credentials)
-      token.value = response.data.access
+      console.log('开始登录请求...')
+      const response = await userApi.login(credentials)
+      console.log('登录响应:', response)
+      
+      token.value = response.access
       localStorage.setItem('token', token.value)
-      localStorage.setItem('refresh_token', response.data.refresh)
-      await fetchUserInfo()
+      localStorage.setItem('refresh_token', response.refresh)
+      console.log('令牌已保存到localStorage')
+      
+      // 确保获取用户信息成功
+      console.log('开始获取用户信息...')
+      const userInfo = await fetchUserInfo()
+      if (!userInfo) {
+        console.error('获取用户信息失败')
+        return false
+      }
+      
+      console.log('登录成功，用户信息:', userInfo)
       return true
     } catch (error) {
       console.error('登录失败:', error)
+      if (error.response) {
+        console.error('错误响应:', error.response)
+      }
       return false
     }
   }
   
   async function register(userData) {
     try {
-      await api.register(userData)
+      await userApi.register(userData)
       return true
     } catch (error) {
       console.error('注册失败:', error)
@@ -39,21 +55,70 @@ export const useUserStore = defineStore('user', () => {
   
   async function fetchUserInfo() {
     try {
-      const response = await api.getUserInfo()
-      user.value = response.data
+      console.log('发送获取用户信息请求...')
+      console.log('当前令牌:', localStorage.getItem('token'))
+      const response = await userApi.getUserInfo()
+      console.log('获取用户信息响应:', response)
+      
+      // 处理头像URL，添加时间戳避免缓存问题
+      if (response && response.avatar) {
+        const timestamp = new Date().getTime()
+        // 检查是否是默认头像
+        const isDefaultAvatar = response.avatar.includes('/avatars/') && 
+                               (response.avatar.includes('male') || 
+                                response.avatar.includes('female'))
+        
+        // 只为自定义头像添加时间戳，默认头像不需要
+        if (!isDefaultAvatar) {
+          response.avatar = response.avatar.includes('?') 
+            ? `${response.avatar}&_t=${timestamp}` 
+            : `${response.avatar}?_t=${timestamp}`
+        }
+        
+        console.log('获取到的头像URL:', response.avatar)
+      }
+      
+      user.value = response
       localStorage.setItem('user', JSON.stringify(user.value))
+      console.log('用户信息已保存到localStorage')
       return user.value
     } catch (error) {
       console.error('获取用户信息失败:', error)
+      if (error.response) {
+        console.error('错误响应:', error.response)
+      }
       return null
     }
   }
   
   async function updateUserInfo(userData) {
     try {
-      const response = await api.updateUserInfo(userData)
-      user.value = { ...user.value, ...response.data }
+      const response = await userApi.updateUserInfo(userData)
+      
+      // 处理头像URL，添加时间戳避免缓存问题
+      if (response && response.avatar) {
+        const timestamp = new Date().getTime()
+        // 检查是否是默认头像
+        const isDefaultAvatar = response.avatar.includes('/avatars/') && 
+                               (response.avatar.includes('male') || 
+                                response.avatar.includes('female'))
+        
+        // 只为自定义头像添加时间戳，默认头像不需要
+        if (!isDefaultAvatar) {
+          response.avatar = response.avatar.includes('?') 
+            ? `${response.avatar}&_t=${timestamp}` 
+            : `${response.avatar}?_t=${timestamp}`
+        }
+        
+        console.log('更新后的头像URL:', response.avatar)
+      }
+      
+      // 更新用户信息
+      user.value = { ...user.value, ...response }
+      
+      // 确保更新后的信息保存到本地存储
       localStorage.setItem('user', JSON.stringify(user.value))
+      
       return true
     } catch (error) {
       console.error('更新用户信息失败:', error)
@@ -63,7 +128,7 @@ export const useUserStore = defineStore('user', () => {
   
   async function changePassword(passwordData) {
     try {
-      await api.changePassword(passwordData)
+      await userApi.changePassword(passwordData)
       return true
     } catch (error) {
       console.error('修改密码失败:', error)

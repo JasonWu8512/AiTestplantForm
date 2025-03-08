@@ -79,7 +79,21 @@ class UserViewSet(viewsets.ModelViewSet):
     
     @action(detail=False, methods=['put'], permission_classes=[permissions.IsAuthenticated])
     def update_me(self, request):
-        """更新当前登录用户的信息"""
+        """
+        更新当前登录用户的信息
+        
+        允许用户更新自己的个人信息，包括基本信息和头像。
+        支持通过FormData上传头像文件。
+        
+        Args:
+            request (Request): 请求对象，包含用户信息数据
+            
+        Returns:
+            Response: 更新后的用户信息
+            
+        Raises:
+            ValidationError: 当提供的数据无效时抛出
+        """
         serializer = UserUpdateSerializer(request.user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()

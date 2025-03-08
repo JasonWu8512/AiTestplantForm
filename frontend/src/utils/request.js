@@ -4,8 +4,13 @@ import router from '@/router'
 
 // 创建axios实例
 const service = axios.create({
-  baseURL: '', // 使用相对路径，由Vite代理处理
+  baseURL: '/api', // API的基础URL，确保与后端API路径匹配
   timeout: 15000 // 请求超时时间
+})
+
+console.log('Axios实例配置:', {
+  baseURL: service.defaults.baseURL,
+  timeout: service.defaults.timeout
 })
 
 // 请求拦截器
@@ -13,9 +18,23 @@ service.interceptors.request.use(
   config => {
     // 从localStorage获取token
     const token = localStorage.getItem('token')
+    console.log(`请求: ${config.method.toUpperCase()} ${config.url}`)
+    console.log('完整请求URL:', `${config.baseURL}${config.url}`)
+    console.log('请求配置:', {
+      url: config.url,
+      method: config.method,
+      baseURL: config.baseURL,
+      headers: config.headers,
+      params: config.params,
+      data: config.data
+    })
+    
     if (token) {
+      console.log('添加认证令牌到请求头:', token.substring(0, 15) + '...')
       // 设置请求头
       config.headers['Authorization'] = `Bearer ${token}`
+    } else {
+      console.log('请求未携带认证令牌')
     }
     return config
   },
@@ -28,12 +47,16 @@ service.interceptors.request.use(
 // 响应拦截器
 service.interceptors.response.use(
   response => {
-    return response
+    console.log('请求成功:', response.config.url)
+    console.log('响应数据:', response.data)
+    return response.data  // 直接返回响应数据，简化调用
   },
   error => {
     // 处理错误响应
     if (error.response) {
       const { status, data } = error.response
+      console.error(`请求失败: ${error.config.url}, 状态码: ${status}`)
+      console.error('错误响应数据:', data)
       
       // 处理常见错误
       switch (status) {

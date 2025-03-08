@@ -1,3 +1,11 @@
+<!--
+/**
+ * 女性默认头像2 - 紫色卡通风格
+ * 
+ * 作者: AiTestPlantForm团队
+ * 创建日期: 2025-03-07
+ */
+-->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="200" height="200">
   <circle cx="50" cy="50" r="50" fill="#9C27B0" />
   <circle cx="50" cy="40" r="20" fill="#FFFFFF" />

@@ -5,7 +5,7 @@ export default {
   // 登录
   login(data) {
     return request({
-      url: '/api/users/token/',
+      url: '/users/token/',
       method: 'post',
       data
     })
@@ -14,7 +14,7 @@ export default {
   // 注册
   register(data) {
     return request({
-      url: '/api/users/register/',
+      url: '/users/register/',
       method: 'post',
       data
     })
@@ -23,7 +23,7 @@ export default {
   // 获取用户信息
   getUserInfo() {
     return request({
-      url: '/api/users/me/',
+      url: '/users/me/',
       method: 'get'
     })
   },
@@ -31,7 +31,7 @@ export default {
   // 更新用户信息
   updateUserInfo(data) {
     const config = {
-      url: '/api/users/update_me/',
+      url: '/users/update_me/',
       method: 'put',
       data
     };
@@ -49,7 +49,7 @@ export default {
   // 修改密码
   changePassword(data) {
     return request({
-      url: '/api/users/change_password/',
+      url: '/users/change_password/',
       method: 'put',
       data
     })
@@ -58,7 +58,7 @@ export default {
   // 获取用户列表（仅管理员）
   getUserList(params) {
     return request({
-      url: '/api/users/',
+      url: '/users/',
       method: 'get',
       params
     })

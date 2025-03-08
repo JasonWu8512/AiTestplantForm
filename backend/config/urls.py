@@ -10,6 +10,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.static import serve
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
@@ -32,11 +33,11 @@ schema_view = get_schema_view(
 api_patterns = [
     # 各模块的URL配置
     path('users/', include('apps.users.urls')),
-    # path('testcases/', include('apps.testcases.urls')),
-    # path('testplans/', include('apps.testplans.urls')),
-    # path('executions/', include('apps.executions.urls')),
+    path('testcases/', include('apps.testcases.urls')),
+    path('testplans/', include('apps.testplans.urls')),
+    path('executions/', include('apps.executions.urls')),
     # path('reports/', include('apps.reports.urls')),
-    # path('dashboard/', include('apps.dashboard.urls')),
+    path('dashboard/', include('apps.dashboard.urls')),
 ]
 
 urlpatterns = [
@@ -48,8 +49,13 @@ urlpatterns = [
     # Swagger文档
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+    
+    # 静态文件服务
+    path('static/<path:path>', serve, {'document_root': settings.STATIC_ROOT}),
+    path('media/<path:path>', serve, {'document_root': settings.MEDIA_ROOT}),
 ]
 
 # 在开发环境中提供媒体文件服务
 if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

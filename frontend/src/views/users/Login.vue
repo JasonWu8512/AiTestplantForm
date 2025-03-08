@@ -38,6 +38,7 @@
             placeholder="请输入您的用户名" 
             prefix-icon="User"
             autofocus
+            class="custom-input"
           />
         </el-form-item>
         
@@ -49,7 +50,14 @@
             prefix-icon="Lock" 
             type="password" 
             show-password
+            class="custom-input"
           />
+        </el-form-item>
+        
+        <el-form-item>
+          <div class="login-options">
+            <el-checkbox v-model="rememberUsername">记住账号</el-checkbox>
+          </div>
         </el-form-item>
         
         <el-form-item>
@@ -83,9 +91,20 @@ const router = useRouter()
 const route = useRoute()
 const userStore = useUserStore()
 
+// 记住账号选项
+const rememberUsername = ref(localStorage.getItem('rememberUsername') === 'true')
+
 // 设置页面标题
 onMounted(() => {
   document.title = '测试平台 - AiTestPlantForm'
+  
+  // 如果之前选择了记住账号，则自动填充用户名
+  if (rememberUsername.value) {
+    const savedUsername = localStorage.getItem('savedUsername')
+    if (savedUsername) {
+      loginForm.username = savedUsername
+    }
+  }
 })
 
 // 登录表单
@@ -116,17 +135,43 @@ const handleLogin = async () => {
     if (valid) {
       loading.value = true
       try {
+        console.log('开始登录...', loginForm)
         const success = await userStore.login(loginForm)
+        console.log('登录结果:', success)
+        
         if (success) {
+          // 保存记住账号的选择和用户名
+          localStorage.setItem('rememberUsername', rememberUsername.value)
+          if (rememberUsername.value) {
+            localStorage.setItem('savedUsername', loginForm.username)
+          } else {
+            localStorage.removeItem('savedUsername')
+          }
+          
+          console.log('登录成功，准备跳转...')
           ElMessage.success('登录成功')
           // 如果有重定向，则跳转到重定向页面，否则跳转到首页
           const redirect = route.query.redirect || '/'
-          router.push(redirect)
+          console.log('跳转目标:', redirect)
+          
+          // 确保路由跳转成功
+          try {
+            await router.push(redirect)
+            console.log('跳转完成')
+          } catch (routeError) {
+            console.error('路由跳转失败:', routeError)
+            // 如果跳转失败，尝试强制跳转到首页
+            router.push('/')
+          }
         } else {
+          console.error('登录失败，store.login返回false')
           ElMessage.error('登录失败，请检查用户名和密码')
         }
       } catch (error) {
         console.error('登录错误:', error)
+        if (error.response) {
+          console.error('错误响应:', error.response)
+        }
         ElMessage.error('登录失败，请稍后重试')
       } finally {
         loading.value = false
@@ -193,6 +238,13 @@ const handleLogin = async () => {
   font-size: 14px;
 }
 
+.login-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
 .login-button {
   width: 100%;
 }
@@ -213,5 +265,19 @@ const handleLogin = async () => {
   position: relative;
   z-index: 100;
   cursor: pointer;
+}
+
+/* 自定义输入框样式，覆盖自动填充的蓝底色块 */
+:deep(.custom-input .el-input__inner) {
+  background-color: white !important;
+  box-shadow: none !important;
+}
+
+:deep(.custom-input .el-input__inner:-webkit-autofill),
+:deep(.custom-input .el-input__inner:-webkit-autofill:hover),
+:deep(.custom-input .el-input__inner:-webkit-autofill:focus) {
+  -webkit-box-shadow: 0 0 0 1000px white inset !important;
+  -webkit-text-fill-color: #333 !important;
+  caret-color: #333 !important;
 }
 </style> 

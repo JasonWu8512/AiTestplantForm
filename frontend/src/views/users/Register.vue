@@ -30,7 +30,7 @@
     <div class="auth-container">
       <h2 class="auth-title">注册</h2>
       
-      <el-form ref="registerFormRef" :model="registerForm" :rules="registerRules" label-width="0">
+      <el-form ref="registerFormRef" :model="registerForm" :rules="registerRules" label-width="0" autocomplete="off">
         <el-form-item prop="username">
           <label class="input-label">用户名</label>
           <el-input 
@@ -38,6 +38,8 @@
             placeholder="请输入3-20个字符的用户名" 
             prefix-icon="User"
             autofocus
+            class="custom-input"
+            autocomplete="off"
           />
         </el-form-item>
         
@@ -47,6 +49,7 @@
             v-model="registerForm.email" 
             placeholder="请输入有效的邮箱地址" 
             prefix-icon="Message"
+            class="custom-input"
           />
         </el-form-item>
         
@@ -58,6 +61,7 @@
             prefix-icon="Lock" 
             type="password" 
             show-password
+            class="custom-input"
           />
         </el-form-item>
         
@@ -69,6 +73,7 @@
             prefix-icon="Lock" 
             type="password" 
             show-password
+            class="custom-input"
           />
         </el-form-item>
         
@@ -271,5 +276,19 @@ const handleRegister = async () => {
   position: relative;
   z-index: 100;
   cursor: pointer;
+}
+
+/* 自定义输入框样式，覆盖自动填充的蓝底色块 */
+:deep(.custom-input .el-input__inner) {
+  background-color: white !important;
+  box-shadow: none !important;
+}
+
+:deep(.custom-input .el-input__inner:-webkit-autofill),
+:deep(.custom-input .el-input__inner:-webkit-autofill:hover),
+:deep(.custom-input .el-input__inner:-webkit-autofill:focus) {
+  -webkit-box-shadow: 0 0 0 1000px white inset !important;
+  -webkit-text-fill-color: #333 !important;
+  caret-color: #333 !important;
 }
 </style> 

@@ -13,6 +13,26 @@
         <span>仪表盘</span>
       </el-menu-item>
       
+      <el-menu-item index="/projects">
+        <el-icon><folder /></el-icon>
+        <span>项目管理</span>
+      </el-menu-item>
+      
+      <el-menu-item index="/testcases">
+        <el-icon><document /></el-icon>
+        <span>测试用例管理</span>
+      </el-menu-item>
+      
+      <el-menu-item index="/testplans">
+        <el-icon><calendar /></el-icon>
+        <span>测试计划管理</span>
+      </el-menu-item>
+      
+      <el-menu-item index="/executions">
+        <el-icon><VideoPlay /></el-icon>
+        <span>测试执行管理</span>
+      </el-menu-item>
+      
       <el-menu-item index="/users" v-if="isAdmin">
         <el-icon><user /></el-icon>
         <span>用户管理</span>
@@ -27,7 +47,7 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useUserStore } from '@/store/user'
-import { Odometer, User } from '@element-plus/icons-vue'
+import { Odometer, User, Folder, Document, Calendar, VideoPlay } from '@element-plus/icons-vue'
 
 const route = useRoute()
 const userStore = useUserStore()

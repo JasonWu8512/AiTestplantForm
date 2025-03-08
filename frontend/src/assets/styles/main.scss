@@ -25,6 +25,25 @@ body {
   height: 100vh;
 }
 
+/* 覆盖浏览器自动填充样式 */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px white inset !important;
+  -webkit-text-fill-color: #333 !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* 覆盖Element Plus输入框自动填充样式 */
+.el-input__inner:-webkit-autofill,
+.el-input__inner:-webkit-autofill:hover, 
+.el-input__inner:-webkit-autofill:focus,
+.el-input__inner:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px white inset !important;
+  -webkit-text-fill-color: #333 !important;
+}
+
 /* 通用样式 */
 .page-container {
   padding: 20px;
