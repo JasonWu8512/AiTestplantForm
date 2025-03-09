@@ -289,6 +289,8 @@ const fetchExecutionList = async () => {
       status: searchForm.status || undefined
     }
     
+    console.log('发送到后端的参数:', JSON.stringify(params))
+    
     const response = await getExecutionList(params)
     console.log('测试执行列表原始响应:', response)
     
@@ -429,12 +431,17 @@ const fetchTestPlanList = async () => {
 
 // 搜索
 const handleSearch = () => {
+  console.log('执行搜索操作，搜索条件:', {
+    planName: searchForm.planName,
+    status: searchForm.status
+  })
   pagination.currentPage = 1
   fetchExecutionList()
 }
 
 // 重置搜索
 const resetSearch = () => {
+  console.log('重置搜索条件')
   searchForm.planName = ''
   searchForm.status = ''
   pagination.currentPage = 1

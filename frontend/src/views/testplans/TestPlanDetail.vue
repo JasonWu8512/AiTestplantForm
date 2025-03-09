@@ -521,11 +521,13 @@ export default {
   color: #fff !important;
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
   padding: 6px 12px;
+  background-color: #f56c6c;
+  border-color: #f56c6c;
 }
 
 .remove-button:hover {
-  background-color: #f56c6c;
-  border-color: #f56c6c;
+  background-color: #f78989;
+  border-color: #f78989;
   color: #fff !important;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }

@@ -24,50 +24,52 @@
             <!-- 头像选择区域 -->
             <el-form-item label="头像" class="avatar-form-item">
               <div class="avatar-container">
-                <div class="current-avatar">
+                <div class="avatar-preview-section">
                   <el-avatar :size="120" :src="avatarPreview" class="avatar-preview">{{ userInitials }}</el-avatar>
-                  <div class="avatar-text">当前头像</div>
+                  <div class="avatar-actions">
+                    <el-button type="primary" size="small" @click="triggerFileInput" class="action-button">
+                      <i class="el-icon-upload"></i> 上传头像
+                    </el-button>
+                    <input 
+                      type="file" 
+                      ref="fileInput" 
+                      style="display: none" 
+                      accept="image/jpeg,image/png,image/gif"
+                      @change="handleFileChange"
+                    />
+                    <el-button v-if="hasCustomAvatar" type="danger" size="small" @click="removeCustomAvatar" class="action-button">
+                      <i class="el-icon-delete"></i> 移除
+                    </el-button>
+                  </div>
                 </div>
                 
                 <div class="avatar-options">
-                  <div class="avatar-section">
-                    <div class="section-title">选择默认头像</div>
-                    <div class="default-avatars">
-                      <div 
-                        v-for="(avatar, index) in defaultAvatars" 
-                        :key="index" 
-                        class="avatar-item"
-                        :class="{ 'selected': selectedDefaultAvatar === avatar }"
-                        @click="selectDefaultAvatar(avatar)"
-                      >
-                        <img :src="avatar" alt="默认头像" class="avatar-img" />
+                  <div class="section-title">选择默认头像</div>
+                  <div class="default-avatars-grid">
+                    <div 
+                      v-for="(avatar, index) in defaultAvatars" 
+                      :key="index" 
+                      class="avatar-item"
+                      :class="{ 'selected': selectedDefaultAvatar === avatar }"
+                      @click="selectDefaultAvatar(avatar)"
+                    >
+                      <img :src="avatar" alt="默认头像" class="avatar-img" />
+                      <div class="avatar-check" v-if="selectedDefaultAvatar === avatar">
+                        <i class="el-icon-check"></i>
                       </div>
                     </div>
                   </div>
                   
-                  <div class="avatar-section">
-                    <div class="section-title">上传自定义头像</div>
-                    <div class="upload-container">
-                      <!-- 使用原生文件输入框替代el-upload -->
-                      <div class="file-upload-wrapper">
-                        <el-button type="primary" @click="triggerFileInput" class="upload-button">
-                          <i class="el-icon-upload"></i> 选择图片
-                        </el-button>
-                        <input 
-                          type="file" 
-                          ref="fileInput" 
-                          style="display: none" 
-                          accept="image/jpeg,image/png,image/gif"
-                          @change="handleFileChange"
-                        />
-                      </div>
-                      <div v-if="customAvatarFile" class="selected-file-info">
-                        <i class="el-icon-document"></i> 已选择: {{ customAvatarFile.name }}
-                      </div>
-                      <div class="upload-tips">
-                        <i class="el-icon-info-circle"></i> 支持JPG、PNG、GIF格式，文件大小不超过2MB
-                      </div>
+                  <div class="upload-info" v-if="customAvatarFile">
+                    <div class="selected-file-info">
+                      <i class="el-icon-document"></i> 已选择: {{ customAvatarFile.name }}
                     </div>
+                    <div class="upload-tips">
+                      <i class="el-icon-info-circle"></i> 点击"保存"按钮完成上传
+                    </div>
+                  </div>
+                  <div class="upload-tips" v-else>
+                    <i class="el-icon-info-circle"></i> 支持JPG、PNG、GIF格式，文件大小不超过2MB
                   </div>
                 </div>
               </div>
@@ -708,7 +710,7 @@ watch(activeTab, (newTab) => {
   gap: 32px;
 }
 
-.current-avatar {
+.avatar-preview-section {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -724,21 +726,20 @@ watch(activeTab, (newTab) => {
   color: #409EFF;
 }
 
-.avatar-text {
-  font-size: 14px;
-  color: #606266;
+.avatar-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.action-button {
+  height: 40px;
+  font-weight: 500;
 }
 
 .avatar-options {
   display: flex;
   flex-direction: column;
   gap: 32px;
-}
-
-.avatar-section {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
 }
 
 .section-title {
@@ -761,7 +762,7 @@ watch(activeTab, (newTab) => {
   border-radius: 2px;
 }
 
-.default-avatars {
+.default-avatars-grid {
   display: flex;
   flex-wrap: wrap;
   gap: 16px;

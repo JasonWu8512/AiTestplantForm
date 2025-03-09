@@ -196,7 +196,7 @@
               <el-table-column prop="order" label="执行顺序" width="100" />
               <el-table-column label="操作" width="150" v-if="dialogType === 'edit'">
                 <template #default="scope">
-                  <el-button size="small" type="danger" @click="handleRemoveTestCase(scope.row)" text>
+                  <el-button size="small" type="danger" @click="handleRemoveTestCase(scope.row)">
                     <el-icon><Delete /></el-icon>移除
                   </el-button>
                 </template>
@@ -1064,5 +1064,17 @@ const formatDate = (dateString) => {
 
 :deep(.el-form) {
   width: 100%;
+}
+
+/* 移除按钮样式 */
+:deep(.el-button--danger) {
+  color: #fff;
+  background-color: #f56c6c;
+  border-color: #f56c6c;
+}
+
+:deep(.el-button--danger:hover) {
+  background-color: #f78989;
+  border-color: #f78989;
 }
 </style> 

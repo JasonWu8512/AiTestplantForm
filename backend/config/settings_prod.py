@@ -66,12 +66,12 @@ LOGGING = {
     },
     'handlers': {
         'console': {
-            'level': 'INFO',
+            'level': 'DEBUG',
             'class': 'logging.StreamHandler',
             'formatter': 'verbose',
         },
         'file': {
-            'level': 'INFO',
+            'level': 'DEBUG',
             'class': 'logging.FileHandler',
             'filename': os.path.join(BASE_DIR, 'logs/django.log'),
             'formatter': 'verbose',
@@ -81,6 +81,11 @@ LOGGING = {
         'django': {
             'handlers': ['console', 'file'],
             'level': 'INFO',
+            'propagate': True,
+        },
+        'apps.executions': {
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG',
             'propagate': True,
         },
     },

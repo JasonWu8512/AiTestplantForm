@@ -44,13 +44,38 @@ class TestExecutionViewSet(viewsets.ModelViewSet):
         """
         logger = logging.getLogger(__name__)
         
-        logger.info("获取测试执行列表，请求参数: %s", request.query_params)
-        queryset = self.filter_queryset(self.get_queryset())
+        # 获取查询参数
+        plan_name = request.query_params.get('plan_name', None)
+        status_param = request.query_params.get('status', None)
+        
+        # 详细记录请求参数
+        logger.info(f"获取测试执行列表请求参数: {request.query_params}")
+        logger.info(f"解析后的参数 - plan_name: {plan_name}, status: {status_param}")
+        
+        # 获取初始查询集
+        queryset = self.get_queryset()
+        logger.info(f"初始查询集数量: {queryset.count()}")
+        
+        # 根据参数过滤
+        if plan_name:
+            logger.info(f"根据计划名称过滤: {plan_name}")
+            queryset = queryset.filter(plan__name__icontains=plan_name)
+            logger.info(f"计划名称过滤后的查询集数量: {queryset.count()}")
+        
+        if status_param:
+            logger.info(f"根据状态过滤: {status_param}")
+            queryset = queryset.filter(status=status_param)
+            logger.info(f"状态过滤后的查询集数量: {queryset.count()}")
+        
+        # 应用其他过滤器（排序等）
+        queryset = self.filter_queryset(queryset)
+        
         logger.info("过滤后的查询集数量: %d", queryset.count())
         
-        # 直接返回所有数据，不使用分页
+        # 序列化数据
         serializer = self.get_serializer(queryset, many=True)
-        logger.info("所有数据数量: %d", len(serializer.data))
+        logger.info(f"序列化后的数据数量: {len(serializer.data)}")
+        
         return Response(serializer.data)
     
     @action(detail=True, methods=['post'])

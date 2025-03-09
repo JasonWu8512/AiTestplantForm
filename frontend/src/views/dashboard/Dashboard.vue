@@ -124,6 +124,28 @@
             <div ref="testresultStatusChart" class="chart"></div>
           </div>
         </el-card>
+        
+        <el-card class="chart-card ocean-card" shadow="hover">
+          <template #header>
+            <div class="card-header">
+              <span>测试用例创建趋势</span>
+            </div>
+          </template>
+          <div class="chart-wrapper">
+            <div id="testcaseTrendChart" class="chart"></div>
+          </div>
+        </el-card>
+        
+        <el-card class="chart-card ocean-card" shadow="hover">
+          <template #header>
+            <div class="card-header">
+              <span>测试结果趋势</span>
+            </div>
+          </template>
+          <div class="chart-wrapper">
+            <div id="testresultTrendChart" class="chart"></div>
+          </div>
+        </el-card>
       </div>
     </div>
   </div>
@@ -132,18 +154,31 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { getSummary, getStatistics } from '@/api/dashboard'
+import { getProjects } from '@/api/testcase'
 import * as echarts from 'echarts/core'
-import { PieChart } from 'echarts/charts'
-import { TitleComponent, TooltipComponent, LegendComponent } from 'echarts/components'
+import { PieChart, BarChart, RadarChart } from 'echarts/charts'
+import { 
+  TitleComponent, 
+  TooltipComponent, 
+  LegendComponent,
+  GridComponent,
+  DatasetComponent,
+  TransformComponent
+} from 'echarts/components'
 import { LabelLayout } from 'echarts/features'
 import { CanvasRenderer } from 'echarts/renderers'
 
 // 注册必要的组件
 echarts.use([
   PieChart,
+  BarChart,
+  RadarChart,
   TitleComponent,
   TooltipComponent,
   LegendComponent,
+  GridComponent,
+  DatasetComponent,
+  TransformComponent,
   LabelLayout,
   CanvasRenderer
 ])
@@ -193,7 +228,10 @@ const fetchStatistics = async () => {
       params.project = selectedProject.value
     }
     
+    console.log('获取统计数据，参数:', params)
     const response = await getStatistics(params)
+    console.log('统计数据响应:', response)
+    
     statistics.value = response || {
       testcase_status: {},
       testcase_priority: {},
@@ -202,6 +240,8 @@ const fetchStatistics = async () => {
       testcase_trend: [],
       testresult_trend: []
     }
+    
+    console.log('处理后的统计数据:', statistics.value)
     
     // 获取数据后更新图表
     nextTick(() => {
@@ -221,15 +261,49 @@ const fetchStatistics = async () => {
   }
 }
 
+// 获取项目列表
+const loadProjects = async () => {
+  try {
+    console.log('加载项目列表')
+    const response = await getProjects()
+    console.log('项目列表响应:', response)
+    
+    // 根据实际后端返回的数据结构进行处理
+    let projectsData = []
+    
+    if (response.results) {
+      // 如果后端返回的是 { results: [...], count: ... } 格式
+      projectsData = response.results
+    } else if (response.data && response.data.items) {
+      // 如果后端返回的是 { data: { items: [...], total: ... } } 格式
+      projectsData = response.data.items
+    } else if (Array.isArray(response)) {
+      // 如果后端直接返回数组
+      projectsData = response
+    } else {
+      console.error('未知的响应格式:', response)
+      projectsData = []
+    }
+    
+    projects.value = projectsData
+    console.log('处理后的项目列表:', projects.value)
+  } catch (error) {
+    console.error('加载项目列表失败:', error)
+    projects.value = []
+  }
+}
+
 // 渲染所有图表
 const renderCharts = () => {
   renderTestcaseStatusChart()
   renderTestcasePriorityChart()
   renderTestplanStatusChart()
   renderTestresultStatusChart()
+  renderTestcaseTrendChart()
+  renderTestresultTrendChart()
 }
 
-// 渲染测试用例状态分布图
+// 渲染测试用例状态分布图 - 使用饼图
 const renderTestcaseStatusChart = () => {
   if (!testcaseStatusChart.value) return
   
@@ -249,6 +323,10 @@ const renderTestcaseStatusChart = () => {
   
   // 设置图表选项
   const option = {
+    title: {
+      text: '测试用例状态分布',
+      left: 'center'
+    },
     tooltip: {
       trigger: 'item',
       formatter: '{a} <br/>{b}: {c} ({d}%)'
@@ -262,28 +340,20 @@ const renderTestcaseStatusChart = () => {
       {
         name: '测试用例状态',
         type: 'pie',
-        radius: ['40%', '70%'],
-        avoidLabelOverlap: false,
-        itemStyle: {
-          borderRadius: 10,
-          borderColor: '#fff',
-          borderWidth: 2
-        },
-        label: {
-          show: false,
-          position: 'center'
-        },
+        radius: '60%',
+        center: ['50%', '60%'],
+        data: data,
         emphasis: {
-          label: {
-            show: true,
-            fontSize: '18',
-            fontWeight: 'bold'
+          itemStyle: {
+            shadowBlur: 10,
+            shadowOffsetX: 0,
+            shadowColor: 'rgba(0, 0, 0, 0.5)'
           }
         },
-        labelLine: {
-          show: false
-        },
-        data: data
+        label: {
+          show: true,
+          formatter: '{b}: {c} ({d}%)'
+        }
       }
     ]
   }
@@ -292,7 +362,7 @@ const renderTestcaseStatusChart = () => {
   testcaseStatusChartInstance.setOption(option)
 }
 
-// 渲染测试用例优先级分布图
+// 渲染测试用例优先级分布图 - 使用柱状图
 const renderTestcasePriorityChart = () => {
   if (!testcasePriorityChart.value) return
   
@@ -310,43 +380,56 @@ const renderTestcasePriorityChart = () => {
     value: count
   }))
   
+  // 排序数据（按优先级从高到低）
+  const priorityOrder = { '最高': 0, '高': 1, '中': 2, '低': 3 }
+  data.sort((a, b) => {
+    return (priorityOrder[a.name] || 99) - (priorityOrder[b.name] || 99)
+  })
+  
   // 设置图表选项
   const option = {
-    tooltip: {
-      trigger: 'item',
-      formatter: '{a} <br/>{b}: {c} ({d}%)'
+    title: {
+      text: '测试用例优先级分布',
+      left: 'center'
     },
-    legend: {
-      orient: 'vertical',
-      left: 'left',
-      data: data.map(item => item.name)
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: {
+        type: 'shadow'
+      }
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '3%',
+      containLabel: true
+    },
+    xAxis: {
+      type: 'category',
+      data: data.map(item => item.name),
+      axisTick: {
+        alignWithLabel: true
+      }
+    },
+    yAxis: {
+      type: 'value'
     },
     series: [
       {
-        name: '测试用例优先级',
-        type: 'pie',
-        radius: ['40%', '70%'],
-        avoidLabelOverlap: false,
-        itemStyle: {
-          borderRadius: 10,
-          borderColor: '#fff',
-          borderWidth: 2
-        },
-        label: {
-          show: false,
-          position: 'center'
-        },
-        emphasis: {
-          label: {
-            show: true,
-            fontSize: '18',
-            fontWeight: 'bold'
+        name: '用例数量',
+        type: 'bar',
+        barWidth: '60%',
+        data: data.map(item => ({
+          value: item.value,
+          itemStyle: {
+            color: getPriorityColor(item.name)
           }
-        },
-        labelLine: {
-          show: false
-        },
-        data: data
+        })),
+        label: {
+          show: true,
+          position: 'top',
+          formatter: '{c}'
+        }
       }
     ]
   }
@@ -355,7 +438,7 @@ const renderTestcasePriorityChart = () => {
   testcasePriorityChartInstance.setOption(option)
 }
 
-// 渲染测试计划状态分布图
+// 渲染测试计划状态分布图 - 使用环形图
 const renderTestplanStatusChart = () => {
   if (!testplanStatusChart.value) return
   
@@ -375,6 +458,10 @@ const renderTestplanStatusChart = () => {
   
   // 设置图表选项
   const option = {
+    title: {
+      text: '测试计划状态分布',
+      left: 'center'
+    },
     tooltip: {
       trigger: 'item',
       formatter: '{a} <br/>{b}: {c} ({d}%)'
@@ -396,8 +483,9 @@ const renderTestplanStatusChart = () => {
           borderWidth: 2
         },
         label: {
-          show: false,
-          position: 'center'
+          show: true,
+          position: 'outside',
+          formatter: '{b}: {c}'
         },
         emphasis: {
           label: {
@@ -407,9 +495,15 @@ const renderTestplanStatusChart = () => {
           }
         },
         labelLine: {
-          show: false
+          show: true
         },
-        data: data
+        data: data.map(item => ({
+          name: item.name,
+          value: item.value,
+          itemStyle: {
+            color: getStatusColor(item.name)
+          }
+        }))
       }
     ]
   }
@@ -418,7 +512,7 @@ const renderTestplanStatusChart = () => {
   testplanStatusChartInstance.setOption(option)
 }
 
-// 渲染测试结果状态分布图
+// 渲染测试结果状态分布图 - 使用雷达图
 const renderTestresultStatusChart = () => {
   if (!testresultStatusChart.value) return
   
@@ -431,48 +525,65 @@ const renderTestresultStatusChart = () => {
   testresultStatusChartInstance = echarts.init(testresultStatusChart.value)
   
   // 准备数据
-  const data = Object.entries(statistics.value.testresult_status || {}).map(([status, count]) => ({
+  const data = Object.entries(statistics.value.testresult_status || {})
+  const indicators = data.map(([status, count]) => ({
     name: getResultStatusText(status),
-    value: count
+    max: Math.max(...data.map(item => item[1])) * 1.2 // 设置最大值为数据最大值的1.2倍
   }))
   
   // 设置图表选项
   const option = {
+    title: {
+      text: '测试结果状态分布',
+      left: 'center'
+    },
     tooltip: {
-      trigger: 'item',
-      formatter: '{a} <br/>{b}: {c} ({d}%)'
+      trigger: 'item'
     },
     legend: {
       orient: 'vertical',
       left: 'left',
-      data: data.map(item => item.name)
+      data: ['测试结果']
+    },
+    radar: {
+      indicator: indicators,
+      radius: '65%',
+      center: ['50%', '60%'],
+      name: {
+        textStyle: {
+          color: '#333',
+          backgroundColor: '#eee',
+          borderRadius: 3,
+          padding: [3, 5]
+        }
+      },
+      splitArea: {
+        areaStyle: {
+          color: ['rgba(114, 172, 209, 0.2)', 'rgba(114, 172, 209, 0.4)']
+        }
+      }
     },
     series: [
       {
         name: '测试结果状态',
-        type: 'pie',
-        radius: ['40%', '70%'],
-        avoidLabelOverlap: false,
-        itemStyle: {
-          borderRadius: 10,
-          borderColor: '#fff',
-          borderWidth: 2
-        },
-        label: {
-          show: false,
-          position: 'center'
-        },
-        emphasis: {
-          label: {
-            show: true,
-            fontSize: '18',
-            fontWeight: 'bold'
+        type: 'radar',
+        data: [
+          {
+            value: data.map(item => item[1]),
+            name: '测试结果',
+            areaStyle: {
+              color: 'rgba(52, 152, 219, 0.6)'
+            },
+            lineStyle: {
+              color: 'rgba(52, 152, 219, 0.8)',
+              width: 2
+            },
+            label: {
+              show: true,
+              formatter: '{c}'
+            }
           }
-        },
-        labelLine: {
-          show: false
-        },
-        data: data
+        ]
       }
     ]
   }
@@ -481,18 +592,171 @@ const renderTestresultStatusChart = () => {
   testresultStatusChartInstance.setOption(option)
 }
 
+// 渲染测试用例趋势图
+const renderTestcaseTrendChart = () => {
+  // 如果没有图表容器，直接返回
+  if (!document.getElementById('testcaseTrendChart')) return
+  
+  // 如果已存在实例，销毁它
+  if (window.testcaseTrendChartInstance) {
+    window.testcaseTrendChartInstance.dispose()
+  }
+  
+  // 创建新实例
+  window.testcaseTrendChartInstance = echarts.init(document.getElementById('testcaseTrendChart'))
+  
+  // 准备数据
+  const dates = statistics.value.testcase_trend.map(item => item.date)
+  const counts = statistics.value.testcase_trend.map(item => item.count)
+  
+  // 设置图表选项
+  const option = {
+    title: {
+      text: '测试用例创建趋势'
+    },
+    tooltip: {
+      trigger: 'axis'
+    },
+    xAxis: {
+      type: 'category',
+      data: dates.reverse()
+    },
+    yAxis: {
+      type: 'value'
+    },
+    series: [
+      {
+        name: '新增用例数',
+        type: 'line',
+        data: counts.reverse(),
+        smooth: true,
+        lineStyle: {
+          width: 3,
+          color: '#3498db'
+        },
+        areaStyle: {
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            {
+              offset: 0,
+              color: 'rgba(52, 152, 219, 0.5)'
+            },
+            {
+              offset: 1,
+              color: 'rgba(52, 152, 219, 0.1)'
+            }
+          ])
+        }
+      }
+    ]
+  }
+  
+  // 设置图表
+  window.testcaseTrendChartInstance.setOption(option)
+}
+
+// 渲染测试结果趋势图
+const renderTestresultTrendChart = () => {
+  // 如果没有图表容器，直接返回
+  if (!document.getElementById('testresultTrendChart')) return
+  
+  // 如果已存在实例，销毁它
+  if (window.testresultTrendChartInstance) {
+    window.testresultTrendChartInstance.dispose()
+  }
+  
+  // 创建新实例
+  window.testresultTrendChartInstance = echarts.init(document.getElementById('testresultTrendChart'))
+  
+  // 准备数据
+  const dates = statistics.value.testresult_trend.map(item => item.date)
+  const passedCounts = statistics.value.testresult_trend.map(item => item.passed)
+  const failedCounts = statistics.value.testresult_trend.map(item => item.failed)
+  
+  // 设置图表选项
+  const option = {
+    title: {
+      text: '测试结果趋势'
+    },
+    tooltip: {
+      trigger: 'axis'
+    },
+    legend: {
+      data: ['通过', '失败']
+    },
+    xAxis: {
+      type: 'category',
+      data: dates.reverse()
+    },
+    yAxis: {
+      type: 'value'
+    },
+    series: [
+      {
+        name: '通过',
+        type: 'line',
+        data: passedCounts.reverse(),
+        smooth: true,
+        lineStyle: {
+          width: 3,
+          color: '#2ecc71'
+        },
+        areaStyle: {
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            {
+              offset: 0,
+              color: 'rgba(46, 204, 113, 0.5)'
+            },
+            {
+              offset: 1,
+              color: 'rgba(46, 204, 113, 0.1)'
+            }
+          ])
+        }
+      },
+      {
+        name: '失败',
+        type: 'line',
+        data: failedCounts.reverse(),
+        smooth: true,
+        lineStyle: {
+          width: 3,
+          color: '#e74c3c'
+        },
+        areaStyle: {
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            {
+              offset: 0,
+              color: 'rgba(231, 76, 60, 0.5)'
+            },
+            {
+              offset: 1,
+              color: 'rgba(231, 76, 60, 0.1)'
+            }
+          ])
+        }
+      }
+    ]
+  }
+  
+  // 设置图表
+  window.testresultTrendChartInstance.setOption(option)
+}
+
 // 处理窗口大小变化
 const handleResize = () => {
   testcaseStatusChartInstance?.resize()
   testcasePriorityChartInstance?.resize()
   testplanStatusChartInstance?.resize()
   testresultStatusChartInstance?.resize()
+  window.testcaseTrendChartInstance?.resize()
+  window.testresultTrendChartInstance?.resize()
 }
 
 // 初始化
 onMounted(() => {
   fetchSummary()
   fetchStatistics()
+  loadProjects()
   
   // 添加窗口大小变化监听
   window.addEventListener('resize', handleResize)
@@ -508,6 +772,8 @@ onBeforeUnmount(() => {
   testcasePriorityChartInstance?.dispose()
   testplanStatusChartInstance?.dispose()
   testresultStatusChartInstance?.dispose()
+  window.testcaseTrendChartInstance?.dispose()
+  window.testresultTrendChartInstance?.dispose()
 })
 
 /**
@@ -559,6 +825,39 @@ const getPriorityText = (priority) => {
     P3: '低'
   }
   return priorityMap[priority] || priority
+}
+
+/**
+ * 获取优先级颜色
+ */
+const getPriorityColor = (priority) => {
+  const priorityColorMap = {
+    '最高': '#e74c3c',
+    '高': '#e67e22',
+    '中': '#f1c40f',
+    '低': '#3498db'
+  }
+  return priorityColorMap[priority] || '#95a5a6'
+}
+
+/**
+ * 获取状态颜色
+ */
+const getStatusColor = (status) => {
+  const statusColorMap = {
+    '草稿': '#95a5a6',
+    '活跃': '#2ecc71',
+    '不活跃': '#7f8c8d',
+    '已归档': '#34495e',
+    '就绪': '#f1c40f',
+    '进行中': '#3498db',
+    '已完成': '#2ecc71',
+    '待处理': '#e67e22',
+    '运行中': '#3498db',
+    '已暂停': '#f39c12',
+    '已中止': '#e74c3c'
+  }
+  return statusColorMap[status] || '#95a5a6'
 }
 </script>
 
