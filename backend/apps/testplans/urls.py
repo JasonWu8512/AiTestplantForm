@@ -12,7 +12,7 @@ from .views import TestPlanViewSet
 
 # 创建路由器
 router = DefaultRouter()
-router.register(r'testplans', TestPlanViewSet)
+router.register(r'', TestPlanViewSet, basename='testplan')
 
 # URL模式
 urlpatterns = [

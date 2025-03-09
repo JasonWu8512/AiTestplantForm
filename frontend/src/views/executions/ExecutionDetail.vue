@@ -381,7 +381,15 @@ const fetchExecutionDetail = async () => {
     executionInfo.value = response
   } catch (error) {
     console.error('获取测试执行详情失败:', error)
-    ElMessage.error('获取测试执行详情失败')
+    if (error.response && error.response.status === 404) {
+      ElMessage.error('该测试执行不存在或已被删除')
+      // 返回列表页
+      setTimeout(() => {
+        router.push('/executions')
+      }, 1500)
+    } else {
+      ElMessage.error('获取测试执行详情失败: ' + (error.message || '未知错误'))
+    }
   } finally {
     loading.value = false
   }
@@ -397,18 +405,52 @@ const fetchResultList = async () => {
       case_name: filterForm.caseName || undefined,
       status: filterForm.status || undefined
     }
-    const response = await getExecutionResults(executionId.value, params)
-    resultList.value = response.results
-    pagination.total = response.count
     
-    // 更新统计数据
-    updateResultStats(response.stats)
+    try {
+      const response = await getExecutionResults(executionId.value, params)
+      if (response && response.results) {
+        resultList.value = response.results
+        pagination.total = response.count || response.results.length
+        
+        // 更新统计数据
+        if (response.stats) {
+          updateResultStats(response.stats)
+        }
+      } else {
+        resultList.value = []
+        pagination.total = 0
+        // 重置统计数据
+        resetResultStats()
+      }
+    } catch (error) {
+      if (error.response && error.response.status === 404) {
+        ElMessage.error('该测试执行的结果不存在或已被删除')
+        resultList.value = []
+        pagination.total = 0
+        resetResultStats()
+      } else {
+        throw error
+      }
+    }
   } catch (error) {
     console.error('获取测试结果列表失败:', error)
-    ElMessage.error('获取测试结果列表失败')
+    ElMessage.error('获取测试结果列表失败: ' + (error.message || '未知错误'))
+    resultList.value = []
+    pagination.total = 0
+    resetResultStats()
   } finally {
     resultsLoading.value = false
   }
+}
+
+// 重置测试结果统计
+const resetResultStats = () => {
+  resultStats.total = 0
+  resultStats.passed = 0
+  resultStats.failed = 0
+  resultStats.blocked = 0
+  resultStats.skipped = 0
+  resultStats.pending = 0
 }
 
 // 更新测试结果统计

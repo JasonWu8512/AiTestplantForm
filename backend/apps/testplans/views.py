@@ -221,8 +221,8 @@ class TestPlanViewSet(viewsets.ModelViewSet):
         
         test_plan = self.get_object()
         
-        # 检查测试计划状态
-        if test_plan.status not in ['ready', 'in_progress']:
+        # 检查测试计划状态 - 放宽限制，允许草稿状态的测试计划也能创建测试执行
+        if test_plan.status not in ['draft', 'ready', 'in_progress']:
             return Response({
                 'message': f'无法从状态为 {test_plan.get_status_display()} 的测试计划创建测试执行'
             }, status=status.HTTP_400_BAD_REQUEST)
@@ -236,7 +236,9 @@ class TestPlanViewSet(viewsets.ModelViewSet):
         # 创建测试执行
         execution_data = {
             'plan': test_plan.id,
-            'status': 'pending'
+            'status': 'pending',
+            'start_time': test_plan.start_time,
+            'end_time': test_plan.end_time
         }
         
         serializer = TestExecutionSerializer(
@@ -250,7 +252,7 @@ class TestPlanViewSet(viewsets.ModelViewSet):
             # 如果测试计划状态为ready，更新为in_progress
             if test_plan.status == 'ready':
                 test_plan.status = 'in_progress'
-                test_plan.save()
+                test_plan.save(update_fields=['status'])
             
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         

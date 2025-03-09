@@ -4,6 +4,7 @@
  * 提供与测试计划相关的API调用
  */
 import request from '@/utils/request'
+import { TESTPLAN_API, getFullPath } from '@/utils/api-paths'
 
 /**
  * 获取测试计划列表
@@ -12,7 +13,7 @@ import request from '@/utils/request'
  */
 export function getTestPlans(params) {
   return request({
-    url: '/testplans/testplans/',
+    url: getFullPath(TESTPLAN_API.LIST),
     method: 'get',
     params
   })
@@ -25,7 +26,7 @@ export function getTestPlans(params) {
  */
 export function createTestPlan(data) {
   return request({
-    url: '/testplans/testplans/',
+    url: getFullPath(TESTPLAN_API.LIST),
     method: 'post',
     data
   })
@@ -39,7 +40,7 @@ export function createTestPlan(data) {
  */
 export function updateTestPlan(id, data) {
   return request({
-    url: `/testplans/testplans/${id}/`,
+    url: getFullPath(TESTPLAN_API.DETAIL(id)),
     method: 'put',
     data
   })
@@ -52,7 +53,7 @@ export function updateTestPlan(id, data) {
  */
 export function deleteTestPlan(id) {
   return request({
-    url: `/testplans/testplans/${id}/`,
+    url: getFullPath(TESTPLAN_API.DETAIL(id)),
     method: 'delete'
   })
 }
@@ -64,7 +65,7 @@ export function deleteTestPlan(id) {
  */
 export function getTestPlanById(id) {
   return request({
-    url: `/testplans/testplans/${id}/`,
+    url: getFullPath(TESTPLAN_API.DETAIL(id)),
     method: 'get'
   })
 }
@@ -77,7 +78,7 @@ export function getTestPlanById(id) {
  */
 export function getTestPlanCases(id, params) {
   return request({
-    url: `/testplans/testplans/${id}/`,
+    url: getFullPath(TESTPLAN_API.DETAIL(id)),
     method: 'get',
     params
   })
@@ -91,7 +92,7 @@ export function getTestPlanCases(id, params) {
  */
 export function addCasesToTestPlan(id, data) {
   return request({
-    url: `/testplans/testplans/${id}/add_test_cases/`,
+    url: getFullPath(TESTPLAN_API.ADD_CASES(id)),
     method: 'post',
     data
   })
@@ -105,11 +106,8 @@ export function addCasesToTestPlan(id, data) {
  */
 export function removeCaseFromTestPlan(planId, caseId) {
   return request({
-    url: `/testplans/testplans/${planId}/remove_test_case/`,
-    method: 'delete',
-    params: {
-      case_id: caseId
-    }
+    url: getFullPath(TESTPLAN_API.REMOVE_CASE(planId, caseId)),
+    method: 'delete'
   })
 }
 
@@ -121,7 +119,7 @@ export function removeCaseFromTestPlan(planId, caseId) {
  */
 export function reorderTestCases(planId, caseOrders) {
   return request({
-    url: `/testplans/testplans/${planId}/reorder_test_cases/`,
+    url: getFullPath(TESTPLAN_API.REORDER_CASES(planId)),
     method: 'put',
     data: {
       case_orders: caseOrders

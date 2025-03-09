@@ -63,13 +63,14 @@ export const useUserStore = defineStore('user', () => {
       // 处理头像URL，添加时间戳避免缓存问题
       if (response && response.avatar) {
         const timestamp = new Date().getTime()
-        // 检查是否是默认头像
-        const isDefaultAvatar = response.avatar.includes('/avatars/') && 
-                               (response.avatar.includes('male') || 
-                                response.avatar.includes('female'))
         
-        // 只为自定义头像添加时间戳，默认头像不需要
-        if (!isDefaultAvatar) {
+        // 确保默认头像路径正确 - 改进检测逻辑
+        if (response.avatar.startsWith('/avatars/') && 
+            (response.avatar.includes('male') || response.avatar.includes('female'))) {
+          // 这是默认头像，保持原样
+          console.log('使用默认头像:', response.avatar)
+        } else {
+          // 这是自定义头像，添加时间戳避免缓存
           response.avatar = response.avatar.includes('?') 
             ? `${response.avatar}&_t=${timestamp}` 
             : `${response.avatar}?_t=${timestamp}`
@@ -79,6 +80,7 @@ export const useUserStore = defineStore('user', () => {
       }
       
       user.value = response
+      // 强制更新localStorage中的用户信息
       localStorage.setItem('user', JSON.stringify(user.value))
       console.log('用户信息已保存到localStorage')
       return user.value
@@ -98,13 +100,14 @@ export const useUserStore = defineStore('user', () => {
       // 处理头像URL，添加时间戳避免缓存问题
       if (response && response.avatar) {
         const timestamp = new Date().getTime()
-        // 检查是否是默认头像
-        const isDefaultAvatar = response.avatar.includes('/avatars/') && 
-                               (response.avatar.includes('male') || 
-                                response.avatar.includes('female'))
         
-        // 只为自定义头像添加时间戳，默认头像不需要
-        if (!isDefaultAvatar) {
+        // 确保默认头像路径正确 - 改进检测逻辑
+        if (response.avatar.startsWith('/avatars/') && 
+            (response.avatar.includes('male') || response.avatar.includes('female'))) {
+          // 这是默认头像，保持原样
+          console.log('使用默认头像:', response.avatar)
+        } else {
+          // 这是自定义头像，添加时间戳避免缓存
           response.avatar = response.avatar.includes('?') 
             ? `${response.avatar}&_t=${timestamp}` 
             : `${response.avatar}?_t=${timestamp}`
@@ -116,12 +119,16 @@ export const useUserStore = defineStore('user', () => {
       // 更新用户信息
       user.value = { ...user.value, ...response }
       
-      // 确保更新后的信息保存到本地存储
+      // 强制更新localStorage中的用户信息
       localStorage.setItem('user', JSON.stringify(user.value))
+      console.log('更新后的用户信息已保存到localStorage')
       
       return true
     } catch (error) {
       console.error('更新用户信息失败:', error)
+      if (error.response) {
+        console.error('错误响应:', error.response)
+      }
       return false
     }
   }

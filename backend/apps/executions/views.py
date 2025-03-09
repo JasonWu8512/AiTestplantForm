@@ -15,6 +15,7 @@ from rest_framework.permissions import IsAuthenticated
 from .models import TestExecution, TestResult
 from .serializers import TestExecutionSerializer, TestResultSerializer
 from apps.testplans.models import TestPlan, TestPlanCase
+import logging
 
 
 class TestExecutionViewSet(viewsets.ModelViewSet):
@@ -30,6 +31,27 @@ class TestExecutionViewSet(viewsets.ModelViewSet):
     search_fields = ['plan__name', 'status']
     ordering_fields = ['created_at', 'start_time', 'end_time', 'status']
     ordering = ['-created_at']
+    
+    def list(self, request, *args, **kwargs):
+        """
+        获取测试执行列表
+        
+        Args:
+            request: 请求对象
+            
+        Returns:
+            Response: 测试执行列表
+        """
+        logger = logging.getLogger(__name__)
+        
+        logger.info("获取测试执行列表，请求参数: %s", request.query_params)
+        queryset = self.filter_queryset(self.get_queryset())
+        logger.info("过滤后的查询集数量: %d", queryset.count())
+        
+        # 直接返回所有数据，不使用分页
+        serializer = self.get_serializer(queryset, many=True)
+        logger.info("所有数据数量: %d", len(serializer.data))
+        return Response(serializer.data)
     
     @action(detail=True, methods=['post'])
     def start(self, request, pk=None):

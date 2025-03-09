@@ -68,7 +68,7 @@
       
       <!-- 项目选择器 -->
       <div class="project-selector">
-        <span>选择项目:</span>
+        <span class="selector-label">选择项目:</span>
         <el-select v-model="selectedProject" placeholder="全部项目" clearable @change="fetchStatistics">
           <el-option
             v-for="project in projects"
@@ -564,9 +564,18 @@ const getPriorityText = (priority) => {
 
 <style scoped>
 .dashboard-container {
-  /* 移除原有的padding，使用fullscreen-container的padding */
-  overflow-y: auto; /* 确保滚动条显示 */
-  height: 100%; /* 设置高度以激活滚动 */
+  /* 确保滚动条正常显示 */
+  overflow-y: auto !important; /* 强制显示垂直滚动条 */
+  height: calc(100vh - 60px) !important; /* 设置为视口高度减去顶部导航栏高度 */
+  position: relative; /* 确保定位上下文正确 */
+  display: flex;
+  flex-direction: column;
+}
+
+.content-wrapper {
+  flex: 1;
+  overflow-y: auto; /* 内容区域也可滚动 */
+  padding-bottom: 20px; /* 底部添加一些内边距 */
 }
 
 .dashboard-title {
@@ -629,11 +638,24 @@ const getPriorityText = (priority) => {
   display: flex;
   align-items: center;
   margin-bottom: 20px;
-  gap: 10px;
+  gap: 15px;
   background-color: rgba(255, 255, 255, 0.8);
-  padding: 10px 15px;
+  padding: 12px 15px;
   border-radius: 6px;
   border: 1px solid #ecf0f1;
+  flex-wrap: nowrap; /* 防止换行 */
+}
+
+.selector-label {
+  white-space: nowrap; /* 防止文本换行 */
+  min-width: 70px; /* 给标签一个最小宽度 */
+  font-weight: 500; /* 稍微加粗文字 */
+  color: #606266; /* 使用Element Plus默认文字颜色 */
+}
+
+.project-selector .el-select {
+  flex: 1; /* 让下拉框占据剩余空间 */
+  min-width: 200px; /* 设置最小宽度 */
 }
 
 .chart-container {

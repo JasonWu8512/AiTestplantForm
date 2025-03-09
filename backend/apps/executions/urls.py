@@ -12,7 +12,7 @@ from .views import TestExecutionViewSet, TestResultViewSet
 
 # 创建路由器
 router = DefaultRouter()
-router.register(r'executions', TestExecutionViewSet)
+router.register(r'', TestExecutionViewSet, basename='execution')
 router.register(r'results', TestResultViewSet)
 
 # URL模式

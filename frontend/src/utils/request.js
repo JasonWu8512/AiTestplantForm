@@ -1,6 +1,8 @@
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
 import router from '@/router'
+import errorMonitor from './error-monitor'
+import feedback from './feedback'
 
 // 创建axios实例
 const service = axios.create({
@@ -40,6 +42,8 @@ service.interceptors.request.use(
   },
   error => {
     console.error('请求错误:', error)
+    // 记录请求错误
+    errorMonitor.logApiError(error, { stage: 'request' })
     return Promise.reject(error)
   }
 )
@@ -52,59 +56,30 @@ service.interceptors.response.use(
     return response.data  // 直接返回响应数据，简化调用
   },
   error => {
-    // 处理错误响应
+    // 记录API错误
+    errorMonitor.logApiError(error, { 
+      stage: 'response',
+      url: error.config?.url,
+      method: error.config?.method
+    })
+    
+    // 使用用户反馈服务处理错误
     if (error.response) {
-      const { status, data } = error.response
-      console.error(`请求失败: ${error.config.url}, 状态码: ${status}`)
-      console.error('错误响应数据:', data)
+      const { status } = error.response
       
-      // 处理常见错误
-      switch (status) {
-        case 400:
-          // 显示详细的错误信息
-          if (typeof data === 'object' && data !== null) {
-            const errorMessages = [];
-            for (const key in data) {
-              if (Array.isArray(data[key])) {
-                errorMessages.push(`${key}: ${data[key].join(', ')}`);
-              } else if (typeof data[key] === 'string') {
-                errorMessages.push(`${key}: ${data[key]}`);
-              }
-            }
-            if (errorMessages.length > 0) {
-              ElMessage.error(errorMessages.join('\n'));
-            } else {
-              ElMessage.error('请求参数错误');
-            }
-          } else {
-            ElMessage.error(data.detail || '请求参数错误');
-          }
-          break;
-        case 401:
-          ElMessage.error('登录已过期，请重新登录')
-          // 清除token并跳转到登录页
-          localStorage.removeItem('token')
-          localStorage.removeItem('refresh_token')
-          localStorage.removeItem('user')
-          router.push('/login')
-          break
-        case 403:
-          ElMessage.error('没有权限执行此操作')
-          break
-        case 404:
-          ElMessage.error('请求的资源不存在')
-          break
-        case 500:
-          ElMessage.error('服务器内部错误')
-          break
-        default:
-          ElMessage.error(`请求失败: ${error.message}`)
+      // 处理特殊状态码
+      if (status === 401) {
+        // 清除token并跳转到登录页
+        localStorage.removeItem('token')
+        localStorage.removeItem('refresh_token')
+        localStorage.removeItem('user')
+        router.push('/login')
       }
-    } else {
-      ElMessage.error(`网络错误: ${error.message}`)
     }
     
-    console.error('响应错误:', error.response ? error.response.data : error.message)
+    // 显示错误消息
+    feedback.showApiError(error)
+    
     return Promise.reject(error)
   }
 )

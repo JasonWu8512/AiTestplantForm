@@ -4,6 +4,7 @@
  * 提供与测试用例和项目相关的API调用
  */
 import request from '@/utils/request'
+import { TESTCASE_API, PROJECT_API, getFullPath, buildApiPath } from '@/utils/api-paths'
 
 /**
  * 获取项目列表
@@ -13,7 +14,7 @@ import request from '@/utils/request'
 export function getProjects(params) {
   console.log('获取项目列表，参数:', params)
   return request({
-    url: '/testcases/projects/',
+    url: getFullPath(PROJECT_API.LIST),
     method: 'get',
     params
   })
@@ -26,7 +27,7 @@ export function getProjects(params) {
  */
 export function createProject(data) {
   return request({
-    url: '/testcases/projects/',
+    url: getFullPath(PROJECT_API.LIST),
     method: 'post',
     data
   })
@@ -40,7 +41,7 @@ export function createProject(data) {
  */
 export function updateProject(id, data) {
   return request({
-    url: `/testcases/projects/${id}/`,
+    url: getFullPath(PROJECT_API.DETAIL(id)),
     method: 'put',
     data
   })
@@ -53,7 +54,7 @@ export function updateProject(id, data) {
  */
 export function deleteProject(id) {
   return request({
-    url: `/testcases/projects/${id}/`,
+    url: getFullPath(PROJECT_API.DETAIL(id)),
     method: 'delete'
   })
 }
@@ -65,7 +66,7 @@ export function deleteProject(id) {
  */
 export function getProject(id) {
   return request({
-    url: `/testcases/projects/${id}/`,
+    url: getFullPath(PROJECT_API.DETAIL(id)),
     method: 'get'
   })
 }
@@ -77,7 +78,7 @@ export function getProject(id) {
  */
 export function getProjectTestCases(id) {
   return request({
-    url: `/testcases/projects/${id}/test_cases/`,
+    url: getFullPath(TESTCASE_API.BY_PROJECT(id)),
     method: 'get'
   })
 }
@@ -89,7 +90,7 @@ export function getProjectTestCases(id) {
  */
 export function getTestCases(params) {
   return request({
-    url: '/testcases/testcases/',
+    url: getFullPath(TESTCASE_API.LIST),
     method: 'get',
     params
   })
@@ -102,7 +103,7 @@ export function getTestCases(params) {
  */
 export function createTestCase(data) {
   return request({
-    url: '/testcases/testcases/',
+    url: getFullPath(TESTCASE_API.LIST),
     method: 'post',
     data
   })
@@ -116,7 +117,7 @@ export function createTestCase(data) {
  */
 export function updateTestCase(id, data) {
   return request({
-    url: `/testcases/testcases/${id}/`,
+    url: getFullPath(TESTCASE_API.DETAIL(id)),
     method: 'put',
     data
   })
@@ -129,7 +130,7 @@ export function updateTestCase(id, data) {
  */
 export function deleteTestCase(id) {
   return request({
-    url: `/testcases/testcases/${id}/`,
+    url: getFullPath(TESTCASE_API.DETAIL(id)),
     method: 'delete'
   })
 }
@@ -141,7 +142,7 @@ export function deleteTestCase(id) {
  */
 export function getTestCase(id) {
   return request({
-    url: `/testcases/testcases/${id}/`,
+    url: getFullPath(TESTCASE_API.DETAIL(id)),
     method: 'get'
   })
 }
@@ -153,7 +154,7 @@ export function getTestCase(id) {
  */
 export function importTestCases(data) {
   return request({
-    url: '/testcases/testcases/import_cases/',
+    url: getFullPath(TESTCASE_API.IMPORT),
     method: 'post',
     data,
     headers: {
@@ -169,9 +170,117 @@ export function importTestCases(data) {
  */
 export function exportTestCases(params) {
   return request({
-    url: '/testcases/testcases/export_cases/',
+    url: getFullPath(TESTCASE_API.EXPORT),
     method: 'get',
     params,
     responseType: 'blob' // 指定响应类型为blob
+  })
+}
+
+/**
+ * 批量更新测试用例
+ * @param {Array} testcases - 测试用例数组
+ * @returns {Promise} - 返回请求Promise
+ */
+export function batchUpdateTestCases(testcases) {
+  return request({
+    url: getFullPath(TESTCASE_API.BATCH_UPDATE),
+    method: 'post',
+    data: { testcases }
+  })
+}
+
+/**
+ * 批量删除测试用例
+ * @param {Array} ids - 测试用例ID数组
+ * @returns {Promise} - 返回请求Promise
+ */
+export function batchDeleteTestCases(ids) {
+  return request({
+    url: getFullPath(TESTCASE_API.BATCH_DELETE),
+    method: 'post',
+    data: { ids }
+  })
+}
+
+/**
+ * 复制测试用例
+ * @param {Number} id - 测试用例ID
+ * @param {Object} data - 复制选项
+ * @returns {Promise} - 返回请求Promise
+ */
+export function copyTestCase(id, data) {
+  return request({
+    url: getFullPath(TESTCASE_API.COPY(id)),
+    method: 'post',
+    data
+  })
+}
+
+/**
+ * 获取测试用例步骤
+ * @param {Number} id - 测试用例ID
+ * @returns {Promise} - 返回请求Promise
+ */
+export function getTestCaseSteps(id) {
+  return request({
+    url: getFullPath(TESTCASE_API.STEPS(id)),
+    method: 'get'
+  })
+}
+
+/**
+ * 更新测试用例步骤
+ * @param {Number} id - 测试用例ID
+ * @param {Array} steps - 步骤数组
+ * @returns {Promise} - 返回请求Promise
+ */
+export function updateTestCaseSteps(id, steps) {
+  return request({
+    url: getFullPath(TESTCASE_API.STEPS(id)),
+    method: 'put',
+    data: { steps }
+  })
+}
+
+/**
+ * 获取测试用例附件
+ * @param {Number} id - 测试用例ID
+ * @returns {Promise} - 返回请求Promise
+ */
+export function getTestCaseAttachments(id) {
+  return request({
+    url: getFullPath(TESTCASE_API.ATTACHMENTS(id)),
+    method: 'get'
+  })
+}
+
+/**
+ * 添加测试用例附件
+ * @param {Number} id - 测试用例ID
+ * @param {FormData} formData - 包含文件的表单数据
+ * @returns {Promise} - 返回请求Promise
+ */
+export function addTestCaseAttachment(id, formData) {
+  return request({
+    url: getFullPath(TESTCASE_API.ADD_ATTACHMENT(id)),
+    method: 'post',
+    data: formData,
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  })
+}
+
+/**
+ * 删除测试用例附件
+ * @param {Number} id - 测试用例ID
+ * @param {Number} attachmentId - 附件ID
+ * @returns {Promise} - 返回请求Promise
+ */
+export function removeTestCaseAttachment(id, attachmentId) {
+  return request({
+    url: getFullPath(TESTCASE_API.REMOVE_ATTACHMENT(id, attachmentId)),
+    method: 'delete'
   })
 } 

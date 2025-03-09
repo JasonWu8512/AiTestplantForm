@@ -14,6 +14,7 @@ from django.views.static import serve
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
+from apps.testcases.urls import project_urlpatterns, testcase_urlpatterns
 
 # Swagger文档配置
 schema_view = get_schema_view(
@@ -33,7 +34,8 @@ schema_view = get_schema_view(
 api_patterns = [
     # 各模块的URL配置
     path('users/', include('apps.users.urls')),
-    path('testcases/', include('apps.testcases.urls')),
+    path('projects/', include(project_urlpatterns)),
+    path('testcases/', include(testcase_urlpatterns)),
     path('testplans/', include('apps.testplans.urls')),
     path('executions/', include('apps.executions.urls')),
     # path('reports/', include('apps.reports.urls')),

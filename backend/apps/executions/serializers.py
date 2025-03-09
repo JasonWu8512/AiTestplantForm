@@ -12,6 +12,20 @@ from apps.testplans.models import TestPlan
 from apps.testcases.models import TestCase
 from apps.users.serializers import UserSerializer
 from django.utils import timezone
+from apps.testplans.serializers import TestPlanSerializer
+
+
+class TestPlanNestedSerializer(serializers.ModelSerializer):
+    """
+    嵌套的测试计划序列化器
+    
+    用于在测试执行中嵌套显示测试计划信息
+    """
+    project_name = serializers.ReadOnlyField(source='project.name')
+    
+    class Meta:
+        model = TestPlan
+        fields = ['id', 'name', 'project', 'project_name', 'status', 'start_time', 'end_time']
 
 
 class TestExecutionSerializer(serializers.ModelSerializer):
@@ -24,10 +38,11 @@ class TestExecutionSerializer(serializers.ModelSerializer):
     plan_name = serializers.ReadOnlyField(source='plan.name')
     status_display = serializers.CharField(source='get_status_display', read_only=True)
     results_count = serializers.SerializerMethodField()
+    plan_detail = TestPlanNestedSerializer(source='plan', read_only=True)
     
     class Meta:
         model = TestExecution
-        fields = ['id', 'plan', 'plan_name', 'executor', 'executor_name', 'status', 
+        fields = ['id', 'plan', 'plan_name', 'plan_detail', 'executor', 'executor_name', 'status', 
                   'status_display', 'start_time', 'end_time', 'results_count', 
                   'created_at', 'updated_at']
         read_only_fields = ['executor', 'created_at', 'updated_at']

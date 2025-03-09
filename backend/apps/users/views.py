@@ -11,6 +11,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth import get_user_model
+from .models import User
 from .serializers import (
     UserSerializer, 
     UserCreateSerializer, 
@@ -83,7 +84,7 @@ class UserViewSet(viewsets.ModelViewSet):
         更新当前登录用户的信息
         
         允许用户更新自己的个人信息，包括基本信息和头像。
-        支持通过FormData上传头像文件。
+        支持通过FormData上传头像文件或使用默认头像。
         
         Args:
             request (Request): 请求对象，包含用户信息数据
@@ -94,7 +95,44 @@ class UserViewSet(viewsets.ModelViewSet):
         Raises:
             ValidationError: 当提供的数据无效时抛出
         """
-        serializer = UserUpdateSerializer(request.user, data=request.data, partial=True)
+        # 处理默认头像
+        data = request.data.copy()
+        
+        # 检查是否使用默认头像
+        if 'use_default_avatar' in data:
+            default_avatar = data.get('use_default_avatar')
+            if default_avatar:
+                # 验证是否是有效的默认头像
+                if 'male' in default_avatar or 'female' in default_avatar:
+                    # 构建完整的头像路径 - 使用完整的URL路径
+                    avatar_path = f'/avatars/{default_avatar}'
+                    
+                    # 将默认头像路径设置为用户的avatar字段
+                    user = request.user
+                    # 直接设置avatar字段的值，而不是通过ImageField
+                    from django.db.models import Value
+                    from django.db.models.functions import Concat
+                    
+                    # 更新用户记录，直接设置avatar字段为字符串路径
+                    User.objects.filter(pk=user.pk).update(avatar=avatar_path)
+                    
+                    # 重新获取用户对象，确保avatar字段已更新
+                    user.refresh_from_db()
+                    
+                    # 记录日志
+                    print(f"已设置默认头像: {avatar_path}")
+                    print(f"用户头像字段值: {user.avatar}")
+                    
+                    # 移除use_default_avatar字段，避免序列化器验证错误
+                    data.pop('use_default_avatar')
+                    
+                    # 如果没有其他字段需要更新，直接返回更新后的用户信息
+                    if len(data) == 0:
+                        serializer = self.get_serializer(user)
+                        return Response(serializer.data)
+        
+        # 处理常规表单数据
+        serializer = UserUpdateSerializer(request.user, data=data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)

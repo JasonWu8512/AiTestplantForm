@@ -6,6 +6,12 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "generate-api": "node scripts/generate-api.js",
+    "generate-api:all": "node scripts/generate-api.js --overwrite=true",
+    "generate-api:users": "node scripts/generate-api.js -m users --overwrite=true",
+    "generate-api:testcases": "node scripts/generate-api.js -m testcases --overwrite=true",
+    "generate-api:testplans": "node scripts/generate-api.js -m testplans --overwrite=true",
+    "generate-api:executions": "node scripts/generate-api.js -m executions --overwrite=true",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"
   },
   "dependencies": {

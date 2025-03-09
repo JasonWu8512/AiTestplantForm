@@ -198,7 +198,7 @@ const formChanged = ref(false)
 const passwordFormChanged = ref(false)
 const originalFormData = ref({})
 
-// 默认头像列表
+// 默认头像列表 - 确保路径格式一致
 const defaultAvatars = [
   '/avatars/male1.svg',
   '/avatars/male2.svg',
@@ -334,8 +334,12 @@ const passwordLoading = ref(false)
 
 // 获取用户信息
 onMounted(async () => {
+  // 获取用户信息
   const user = await userStore.fetchUserInfo()
+  console.log('获取到的用户信息:', user)
+  
   if (user) {
+    // 填充表单数据
     basicForm.username = user.username || ''
     basicForm.email = user.email || ''
     basicForm.first_name = user.first_name || ''
@@ -349,10 +353,35 @@ onMounted(async () => {
     
     // 如果用户已有头像，显示当前头像
     if (user.avatar) {
-      // 检查是否是默认头像之一
-      const isDefaultAvatar = defaultAvatars.includes(user.avatar)
-      if (isDefaultAvatar) {
-        selectedDefaultAvatar.value = user.avatar
+      console.log('用户当前头像:', user.avatar)
+      
+      // 改进的默认头像检测逻辑
+      if (user.avatar.startsWith('/avatars/') && 
+          (user.avatar.includes('male') || user.avatar.includes('female'))) {
+        console.log('检测到默认头像路径:', user.avatar)
+        
+        // 尝试在默认头像列表中找到匹配项
+        const matchedAvatar = defaultAvatars.find(avatar => 
+          user.avatar === avatar || user.avatar.includes(avatar.replace('/avatars/', ''))
+        )
+        
+        if (matchedAvatar) {
+          console.log('匹配到默认头像:', matchedAvatar)
+          selectedDefaultAvatar.value = matchedAvatar
+        } else {
+          // 如果没有精确匹配，但路径格式正确，使用用户当前头像
+          console.log('未找到精确匹配，使用当前头像路径:', user.avatar)
+          // 检查是否需要添加前导斜杠
+          const normalizedPath = user.avatar.startsWith('/') ? user.avatar : `/${user.avatar}`
+          // 查找最接近的默认头像
+          const closestMatch = defaultAvatars.find(avatar => 
+            normalizedPath.includes('male') && avatar.includes('male') ||
+            normalizedPath.includes('female') && avatar.includes('female')
+          )
+          
+          selectedDefaultAvatar.value = closestMatch || defaultAvatars[0]
+          console.log('选择的默认头像:', selectedDefaultAvatar.value)
+        }
       }
     }
   }
@@ -403,61 +432,77 @@ const handleBack = () => {
 
 // 更新基本信息
 const updateBasicInfo = async () => {
-  if (!basicFormRef.value) return
-  
-  await basicFormRef.value.validate(async (valid) => {
-    if (valid) {
-      basicLoading.value = true
-      try {
-        // 创建FormData对象用于文件上传
-        const formData = new FormData()
-        
-        // 添加基本信息字段
-        formData.append('email', basicForm.email)
-        formData.append('first_name', basicForm.first_name)
-        formData.append('last_name', basicForm.last_name)
-        formData.append('phone', basicForm.phone)
-        formData.append('department', basicForm.department)
-        formData.append('position', basicForm.position)
-        
-        // 处理头像
-        if (customAvatarFile.value) {
-          // 上传自定义头像
-          console.log('上传自定义头像:', customAvatarFile.value)
-          formData.append('avatar', customAvatarFile.value)
-        } else if (selectedDefaultAvatar.value) {
-          // 使用默认头像
-          console.log('使用默认头像:', selectedDefaultAvatar.value)
-          formData.append('avatar', selectedDefaultAvatar.value)
-        }
-        
-        const success = await userStore.updateUserInfo(formData)
-        if (success) {
-          ElMessage.success('个人信息更新成功')
-          formChanged.value = false
-          
-          // 清空文件输入
-          if (fileInput.value) {
-            fileInput.value.value = ''
-          }
-          
-          // 重新获取用户信息，确保头像更新
-          const updatedUser = await userStore.fetchUserInfo()
-          console.log('更新后的用户信息:', updatedUser)
-          
-          // 更新原始表单数据
-          originalFormData.value = { ...basicForm }
-        } else {
-          ElMessage.error('个人信息更新失败')
-        }
-      } catch (error) {
-        console.error('更新错误:', error)
-        ElMessage.error('个人信息更新失败')
-      } finally {
-        basicLoading.value = false
-      }
+  try {
+    // 表单验证
+    await basicFormRef.value.validate()
+    
+    // 显示加载状态
+    basicLoading.value = true
+    
+    // 创建FormData对象
+    const formData = new FormData()
+    
+    // 添加基本字段
+    formData.append('username', basicForm.username)
+    formData.append('email', basicForm.email)
+    formData.append('first_name', basicForm.first_name)
+    formData.append('last_name', basicForm.last_name)
+    formData.append('phone', basicForm.phone || '')
+    formData.append('department', basicForm.department || '')
+    formData.append('position', basicForm.position || '')
+    
+    // 处理头像
+    if (customAvatarFile.value) {
+      // 上传自定义头像
+      console.log('上传自定义头像:', customAvatarFile.value)
+      formData.append('avatar', customAvatarFile.value)
+    } else if (selectedDefaultAvatar.value) {
+      // 使用默认头像URL
+      console.log('使用默认头像:', selectedDefaultAvatar.value)
+      
+      // 对于默认头像，我们直接发送一个特殊字段，让后端知道这是默认头像
+      // 不再尝试将URL转换为文件对象
+      formData.append('use_default_avatar', selectedDefaultAvatar.value.replace('/avatars/', ''));
+      
+      // 记录日志，帮助调试
+      console.log('发送默认头像标识:', selectedDefaultAvatar.value.replace('/avatars/', ''));
     }
-  })
+    
+    const success = await userStore.updateUserInfo(formData)
+    if (success) {
+      ElMessage.success('个人信息更新成功')
+      formChanged.value = false
+      
+      // 清空文件输入
+      if (fileInput.value) {
+        fileInput.value.value = ''
+      }
+      
+      // 重新获取用户信息，确保头像更新
+      const updatedUser = await userStore.fetchUserInfo()
+      console.log('更新后的用户信息:', updatedUser)
+      
+      // 强制刷新头像预览
+      if (updatedUser && updatedUser.avatar) {
+        // 添加时间戳强制刷新
+        const timestamp = new Date().getTime()
+        const forceRefreshUrl = updatedUser.avatar.includes('?') 
+          ? `${updatedUser.avatar}&_t=${timestamp}` 
+          : `${updatedUser.avatar}?_t=${timestamp}`
+        
+        // 更新头像预览
+        avatarPreview.value = forceRefreshUrl
+        console.log('强制刷新头像预览:', forceRefreshUrl)
+      }
+    } else {
+      ElMessage.error('个人信息更新失败')
+    }
+  } catch (error) {
+    console.error('更新个人信息出错:', error)
+    ElMessage.error('表单验证失败，请检查输入')
+  } finally {
+    basicLoading.value = false
+  }
 }
 
 // 更新密码

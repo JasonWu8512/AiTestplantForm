@@ -1,4 +1,5 @@
 import request from '@/utils/request'
+import { EXECUTION_API, RESULT_API, TESTPLAN_API, getFullPath } from '@/utils/api-paths'
 
 /**
  * 获取测试执行列表
@@ -7,7 +8,7 @@ import request from '@/utils/request'
  */
 export function getExecutionList(params) {
   return request({
-    url: '/executions/',
+    url: getFullPath(EXECUTION_API.LIST),
     method: 'get',
     params
   })
@@ -20,7 +21,7 @@ export function getExecutionList(params) {
  */
 export function getExecutionDetail(id) {
   return request({
-    url: `/executions/${id}/`,
+    url: getFullPath(EXECUTION_API.DETAIL(id)),
     method: 'get'
   })
 }
@@ -32,7 +33,7 @@ export function getExecutionDetail(id) {
  */
 export function createExecution(data) {
   return request({
-    url: '/executions/',
+    url: getFullPath(EXECUTION_API.LIST),
     method: 'post',
     data
   })
@@ -46,7 +47,7 @@ export function createExecution(data) {
  */
 export function updateExecution(id, data) {
   return request({
-    url: `/executions/${id}/`,
+    url: getFullPath(EXECUTION_API.DETAIL(id)),
     method: 'put',
     data
   })
@@ -59,7 +60,7 @@ export function updateExecution(id, data) {
  */
 export function deleteExecution(id) {
   return request({
-    url: `/executions/${id}/`,
+    url: getFullPath(EXECUTION_API.DETAIL(id)),
     method: 'delete'
   })
 }
@@ -71,7 +72,7 @@ export function deleteExecution(id) {
  */
 export function startExecution(id) {
   return request({
-    url: `/executions/${id}/start/`,
+    url: getFullPath(EXECUTION_API.START(id)),
     method: 'post'
   })
 }
@@ -83,7 +84,7 @@ export function startExecution(id) {
  */
 export function pauseExecution(id) {
   return request({
-    url: `/executions/${id}/pause/`,
+    url: getFullPath(EXECUTION_API.PAUSE(id)),
     method: 'post'
   })
 }
@@ -95,7 +96,7 @@ export function pauseExecution(id) {
  */
 export function completeExecution(id) {
   return request({
-    url: `/executions/${id}/complete/`,
+    url: getFullPath(EXECUTION_API.COMPLETE(id)),
     method: 'post'
   })
 }
@@ -107,7 +108,7 @@ export function completeExecution(id) {
  */
 export function abortExecution(id) {
   return request({
-    url: `/executions/${id}/abort/`,
+    url: getFullPath(EXECUTION_API.ABORT(id)),
     method: 'post'
   })
 }
@@ -119,7 +120,7 @@ export function abortExecution(id) {
  */
 export function getResultList(params) {
   return request({
-    url: '/results/',
+    url: getFullPath(RESULT_API.LIST),
     method: 'get',
     params
   })
@@ -133,7 +134,7 @@ export function getResultList(params) {
  */
 export function getExecutionResults(executionId, params) {
   return request({
-    url: `/executions/${executionId}/results/`,
+    url: getFullPath(EXECUTION_API.RESULTS(executionId)),
     method: 'get',
     params
   })
@@ -146,7 +147,7 @@ export function getExecutionResults(executionId, params) {
  */
 export function getResultDetail(id) {
   return request({
-    url: `/results/${id}/`,
+    url: getFullPath(RESULT_API.DETAIL(id)),
     method: 'get'
   })
 }
@@ -159,7 +160,7 @@ export function getResultDetail(id) {
  */
 export function updateResult(id, data) {
   return request({
-    url: `/results/${id}/`,
+    url: getFullPath(RESULT_API.DETAIL(id)),
     method: 'put',
     data
   })
@@ -172,7 +173,7 @@ export function updateResult(id, data) {
  */
 export function batchUpdateResults(results) {
   return request({
-    url: '/results/batch_update/',
+    url: getFullPath(RESULT_API.BATCH_UPDATE),
     method: 'post',
     data: { results }
   })
@@ -186,7 +187,7 @@ export function batchUpdateResults(results) {
  */
 export function createExecutionFromPlan(planId, data) {
   return request({
-    url: `/testplans/testplans/${planId}/create_execution/`,
+    url: getFullPath(TESTPLAN_API.CREATE_EXECUTION(planId)),
     method: 'post',
     data
   })

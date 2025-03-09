@@ -10,12 +10,20 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import ProjectViewSet, TestCaseViewSet
 
-# 创建路由器
-router = DefaultRouter()
-router.register(r'projects', ProjectViewSet)
-router.register(r'testcases', TestCaseViewSet)
+# 创建项目路由器 - 用于/api/projects/路径
+project_router = DefaultRouter()
+project_router.register(r'', ProjectViewSet, basename='project')
 
-# URL模式
-urlpatterns = [
-    path('', include(router.urls)),
+# 创建测试用例路由器 - 用于/api/testcases/路径
+testcase_router = DefaultRouter()
+testcase_router.register(r'', TestCaseViewSet, basename='testcase')
+
+# 项目URL模式
+project_urlpatterns = [
+    path('', include(project_router.urls)),
+]
+
+# 测试用例URL模式
+testcase_urlpatterns = [
+    path('', include(testcase_router.urls)),
 ] 
