@@ -484,7 +484,8 @@ const confirmCreateFromPlan = async () => {
       searchForm.planName = ''
       searchForm.status = ''
       fetchExecutionList()
-    }, 1000) // 延长到1秒
+      console.log('测试执行列表刷新完成')
+    }, 1500) // 延长到1.5秒
   } catch (error) {
     console.error('创建测试执行失败:', error)
     if (error.response) {
@@ -579,6 +580,13 @@ const handleDelete = async (row) => {
 }
 
 onMounted(() => {
+  console.log('测试执行列表组件挂载')
+  // 清空搜索条件，确保能看到所有测试执行
+  searchForm.planName = ''
+  searchForm.status = ''
+  // 重置分页到第一页
+  pagination.currentPage = 1
+  // 获取测试执行列表
   fetchExecutionList()
 })
 </script>
