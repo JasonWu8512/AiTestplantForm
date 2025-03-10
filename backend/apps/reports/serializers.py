@@ -54,6 +54,6 @@ class ReportListSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Report
-        fields = ['id', 'name', 'execution', 'execution_name', 'report_type', 
+        fields = ['id', 'name', 'description', 'execution', 'execution_name', 'report_type', 
                   'report_type_display', 'is_public', 'creator_name', 
                   'created_at', 'updated_at'] 

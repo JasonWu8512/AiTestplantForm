@@ -2,7 +2,7 @@
   <div class="testcase-list-container fullscreen-container">
     <div class="page-header">
       <div class="title-section">
-        <h2>测试用例管理</h2>
+        <h2 class="page-title">测试用例管理</h2>
         <span v-if="currentProject" class="project-name">
           项目：{{ currentProject.name }}
         </span>
@@ -957,5 +957,21 @@ const formatDate = (dateString) => {
 .pagination-container {
   display: flex;
   justify-content: flex-end;
+}
+
+.page-title {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 15px;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    width: 50px;
+    height: 3px;
+    background: linear-gradient(to right, #3498db, #2980b9);
+  }
 }
 </style> 

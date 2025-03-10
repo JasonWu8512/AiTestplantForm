@@ -1175,6 +1175,27 @@ const handleCheckDatabaseRecords = async () => {
   border: 1px solid #ecf0f1;
 }
 
+.search-form {
+  display: flex;
+  align-items: center;
+}
+
+.search-form :deep(.el-form-item) {
+  margin-bottom: 0;
+  margin-right: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.search-form :deep(.el-form-item__label) {
+  line-height: 32px;
+}
+
+.search-form :deep(.el-form-item__content) {
+  display: flex;
+  align-items: center;
+}
+
 .execution-row {
   transition: background-color 0.3s ease;
   

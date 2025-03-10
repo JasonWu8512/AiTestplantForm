@@ -1,7 +1,7 @@
 <template>
   <div class="testplan-list-container fullscreen-container">
     <div class="page-header">
-      <h2>测试计划管理</h2>
+      <h2 class="page-title">测试计划管理</h2>
       <el-button type="primary" @click="handleAddTestPlan">
         <el-icon><Plus /></el-icon>新建测试计划
       </el-button>
@@ -1076,5 +1076,21 @@ const formatDate = (dateString) => {
 :deep(.el-button--danger:hover) {
   background-color: #f78989;
   border-color: #f78989;
+}
+
+.page-title {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 15px;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    width: 50px;
+    height: 3px;
+    background: linear-gradient(to right, #3498db, #2980b9);
+  }
 }
 </style> 
