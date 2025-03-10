@@ -76,9 +76,9 @@ defineProps({
 }
 
 .page-description {
-  color: var(--text-secondary);
-  font-size: var(--font-size-md);
-  margin-top: var(--spacing-sm);
+  color: var(--text-secondary, #606266);
+  font-size: var(--font-size-md, 14px);
+  margin-top: var(--spacing-sm, 8px);
   line-height: 1.5;
 }
 

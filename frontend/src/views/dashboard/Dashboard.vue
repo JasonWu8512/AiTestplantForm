@@ -1,6 +1,9 @@
 <template>
   <div class="dashboard-container fullscreen-container">
-    <h2 class="dashboard-title">系统概览</h2>
+    <div class="title-section">
+      <h2 class="dashboard-title">系统概览</h2>
+      <p class="page-description">查看测试项目的统计数据、执行状态和测试结果分析</p>
+    </div>
     
     <div class="content-wrapper">
       <!-- 数据卡片 -->
@@ -863,36 +866,45 @@ const getStatusColor = (status) => {
 
 <style scoped>
 .dashboard-container {
-  /* 确保滚动条正常显示 */
-  overflow-y: auto !important; /* 强制显示垂直滚动条 */
-  height: calc(100vh - 60px) !important; /* 设置为视口高度减去顶部导航栏高度 */
-  position: relative; /* 确保定位上下文正确 */
-  display: flex;
-  flex-direction: column;
+  padding: 20px;
+  height: 100%;
+}
+
+.title-section {
+  max-width: 70%;
+  margin-bottom: 20px;
+}
+
+.dashboard-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  position: relative;
+  padding-bottom: 10px;
+}
+
+.dashboard-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(to right, var(--primary-color), var(--primary-light));
+  border-radius: 3px;
+}
+
+.page-description {
+  color: var(--text-secondary, #606266);
+  font-size: 14px;
+  margin-top: 8px;
+  line-height: 1.5;
 }
 
 .content-wrapper {
   flex: 1;
   overflow-y: auto; /* 内容区域也可滚动 */
   padding-bottom: 20px; /* 底部添加一些内边距 */
-}
-
-.dashboard-title {
-  color: #2c3e50;
-  font-size: 28px;
-  margin-bottom: 25px;
-  position: relative;
-  display: inline-block;
-  
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: -8px;
-    left: 0;
-    width: 50px;
-    height: 3px;
-    background: linear-gradient(to right, #3498db, #2980b9);
-  }
 }
 
 .data-cards {

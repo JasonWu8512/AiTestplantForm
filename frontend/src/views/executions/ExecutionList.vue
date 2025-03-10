@@ -1,7 +1,10 @@
 <template>
   <div class="execution-list-container fullscreen-container">
     <div class="execution-header">
-      <h2 class="page-title">测试执行管理</h2>
+      <div class="title-section">
+        <h2 class="page-title">测试执行管理</h2>
+        <p class="page-description">管理和查看测试执行记录，跟踪测试计划的执行状态和结果</p>
+      </div>
       <div class="execution-actions">
         <el-button type="primary" class="ocean-button" @click="handleCreateFromPlan">从测试计划创建</el-button>
         <!-- 暂时注释掉不需要的功能按钮
@@ -1142,29 +1145,52 @@ const handleCheckDatabaseRecords = async () => {
 
 <style scoped>
 .execution-list-container {
-  /* 移除原有的padding，使用fullscreen-container的padding */
+  padding: 20px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .execution-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 20px;
 }
 
+.title-section {
+  max-width: 70%;
+}
+
 .page-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 8px;
   position: relative;
-  display: inline-block;
-  
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: -8px;
-    left: 0;
-    width: 50px;
-    height: 3px;
-    background: linear-gradient(to right, #3498db, #2980b9);
-  }
+  padding-bottom: 10px;
+}
+
+.page-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(to right, var(--primary-color), var(--primary-light));
+  border-radius: 3px;
+}
+
+.page-description {
+  color: var(--text-secondary, #606266);
+  font-size: 14px;
+  margin-top: 8px;
+  line-height: 1.5;
+}
+
+.execution-actions {
+  display: flex;
+  align-items: center;
 }
 
 .search-container {

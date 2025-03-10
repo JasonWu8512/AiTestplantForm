@@ -3,7 +3,27 @@
     <!-- 主要按钮 -->
     <template v-if="!isMoreMode">
       <template v-for="(button, index) in visibleButtons" :key="index">
+        <el-tooltip
+          v-if="button.tooltip"
+          :content="button.tooltip"
+          placement="top"
+          :effect="'dark'"
+        >
+          <el-button
+            :type="button.type || 'primary'"
+            :size="size"
+            :icon="button.icon"
+            :disabled="button.disabled"
+            :loading="button.loading"
+            @click.stop="handleButtonClick(button, $event)"
+            v-if="!button.hidden"
+            :class="['action-button', button.class]"
+          >
+            {{ button.text }}
+          </el-button>
+        </el-tooltip>
         <el-button
+          v-else
           :type="button.type || 'primary'"
           :size="size"
           :icon="button.icon"
@@ -141,7 +161,7 @@ const handleCommand = (command) => {
 <style scoped>
 .action-buttons {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   flex-wrap: nowrap;
   justify-content: center;
   min-width: 150px;
@@ -149,8 +169,19 @@ const handleCommand = (command) => {
 
 .action-button {
   white-space: nowrap;
-  margin: 0 3px;
-  min-width: 60px;
+  margin: 0;
+  min-width: 40px;
+  transition: all 0.3s;
+  border-radius: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.action-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .is-more-mode {

@@ -3,6 +3,7 @@
     <div class="page-header">
       <div class="title-section">
         <h2 class="page-title">测试用例管理</h2>
+        <p class="page-description">创建和管理测试用例，定义测试步骤和预期结果</p>
         <span v-if="currentProject" class="project-name">
           项目：{{ currentProject.name }}
         </span>
@@ -110,7 +111,7 @@
           </el-table-column>
           <el-table-column label="操作" width="200" fixed="right">
             <template #default="scope">
-              <el-button size="small" @click="handleViewTestCase(scope.row)">
+              <el-button size="small" type="primary" @click="handleViewTestCase(scope.row)">
                 查看
               </el-button>
               <el-button size="small" type="primary" @click="handleEditTestCase(scope.row)">
@@ -913,19 +914,49 @@ const formatDate = (dateString) => {
 .page-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 20px;
 }
 
 .title-section {
+  max-width: 70%;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  position: relative;
+  padding-bottom: 10px;
+}
+
+.page-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(to right, var(--primary-color, #3498db), var(--primary-light, #2980b9));
+  border-radius: 3px;
+}
+
+.page-description {
+  color: var(--text-secondary, #606266);
+  font-size: 14px;
+  margin-top: 8px;
+  line-height: 1.5;
+  margin-bottom: 8px;
 }
 
 .project-name {
-  margin-left: 15px;
-  font-size: 16px;
+  margin-top: 5px;
+  font-size: 14px;
   color: #606266;
+  font-weight: 500;
 }
 
 .button-group {
@@ -957,21 +988,5 @@ const formatDate = (dateString) => {
 .pagination-container {
   display: flex;
   justify-content: flex-end;
-}
-
-.page-title {
-  position: relative;
-  display: inline-block;
-  margin-bottom: 15px;
-  
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: -8px;
-    left: 0;
-    width: 50px;
-    height: 3px;
-    background: linear-gradient(to right, #3498db, #2980b9);
-  }
 }
 </style> 

@@ -1,7 +1,10 @@
 <template>
   <div class="project-list-container fullscreen-container">
     <div class="page-header">
-      <h2 class="page-title">项目管理</h2>
+      <div class="title-section">
+        <h2 class="page-title">项目管理</h2>
+        <p class="page-description">创建和管理测试项目，组织测试用例和测试计划</p>
+      </div>
       <el-button type="primary" class="ocean-button" @click="handleAddProject">
         <el-icon><Plus /></el-icon>新建项目
       </el-button>
@@ -60,7 +63,7 @@
           </el-table-column>
           <el-table-column label="操作" width="250" fixed="right">
             <template #default="scope">
-              <el-button size="small" class="ocean-button" @click="handleViewTestCases(scope.row)">
+              <el-button size="small" type="primary" class="ocean-button" @click="handleViewTestCases(scope.row)">
                 查看用例
               </el-button>
               <el-button size="small" type="primary" class="ocean-button" @click="handleEditProject(scope.row)">
@@ -396,23 +399,38 @@ const formatDate = (dateString) => {
 .page-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 20px;
 }
 
+.title-section {
+  max-width: 70%;
+}
+
 .page-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 8px;
   position: relative;
-  display: inline-block;
-  
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: -8px;
-    left: 0;
-    width: 50px;
-    height: 3px;
-    background: linear-gradient(to right, #3498db, #2980b9);
-  }
+  padding-bottom: 10px;
+}
+
+.page-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(to right, var(--primary-color, #3498db), var(--primary-light, #2980b9));
+  border-radius: 3px;
+}
+
+.page-description {
+  color: var(--text-secondary, #606266);
+  font-size: 14px;
+  margin-top: 8px;
+  line-height: 1.5;
 }
 
 .search-bar {

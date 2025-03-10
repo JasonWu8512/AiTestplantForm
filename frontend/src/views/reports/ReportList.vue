@@ -36,6 +36,7 @@
             v-model="searchForm.reportType" 
             placeholder="选择报告类型" 
             clearable
+            style="width: 180px;"
           >
             <el-option label="Allure报告" value="allure"></el-option>
             <el-option label="HTML报告" value="html"></el-option>
@@ -67,6 +68,8 @@
       :page-size="pagination.pageSize"
       :show-refresh="false"
       :show-settings="false"
+      :actions-width="200"
+      :actions-label="'操作'"
       @refresh="fetchReportList"
       @page-change="handleCurrentChange"
       @size-change="handleSizeChange"
@@ -100,7 +103,7 @@
         </template>
       </el-table-column>
       
-      <el-table-column prop="report_type" label="报告类型" width="120" align="center">
+      <el-table-column prop="report_type" label="报告类型" width="150" align="center">
         <template #default="scope">
           <status-tag :status="scope.row.report_type" :text="scope.row.report_type_display" />
         </template>
@@ -474,26 +477,26 @@ const getActionButtons = (row) => {
     {
       key: 'view',
       text: '查看',
+      tooltip: null,
       type: 'primary',
-      icon: View
+      icon: null,
+      class: 'action-view-btn'
     },
     {
       key: 'download',
       text: '下载',
+      tooltip: null,
       type: 'success',
-      icon: Download
+      icon: null,
+      class: 'action-download-btn'
     },
     {
       key: 'delete',
       text: '删除',
+      tooltip: null,
       type: 'danger',
-      icon: Delete
-    },
-    {
-      key: 'share',
-      text: '分享',
-      type: 'info',
-      icon: Share
+      icon: null,
+      class: 'action-delete-btn'
     }
   ]
 }
@@ -513,61 +516,84 @@ const handleActionClick = (key, button, row) => {
     case 'delete':
       handleDeleteReport(reportRow)
       break
-    case 'share':
-      handleShareReport(reportRow)
-      break
   }
 }
 
 // 处理查看报告
 const handleViewReport = (row) => {
-  previewDialog.title = `报告预览: ${row.name}`
-  previewDialog.url = `/api${REPORT_API.VIEW(row.id)}`
-  previewDialog.visible = true
+  try {
+    ElMessage.info('正在加载报告预览，请稍候...')
+    
+    // 设置预览对话框
+    previewDialog.title = `报告预览: ${row.name || 'Report'}`
+    previewDialog.url = `/api${REPORT_API.VIEW(row.id)}`
+    previewDialog.visible = true
+    
+    // 记录查看操作
+    console.log('查看报告:', row.id, row.name)
+  } catch (error) {
+    console.error('查看报告失败:', error)
+    ElMessage.error('查看报告失败: ' + (error.message || '未知错误'))
+  }
 }
 
 // 处理下载报告
 const handleDownloadReport = async (row) => {
   try {
+    ElMessage.info('正在准备下载报告，请稍候...')
+    
     const response = await downloadReport(row.id)
     
+    // 检查响应类型
+    if (!(response instanceof Blob)) {
+      console.error('下载报告响应不是Blob类型:', response)
+      ElMessage.error('下载报告失败: 响应格式不正确')
+      return
+    }
+    
     // 创建下载链接
-    const url = window.URL.createObjectURL(new Blob([response]))
+    const url = window.URL.createObjectURL(response)
     const link = document.createElement('a')
     link.href = url
-    link.setAttribute('download', `${row.name}.zip`)
+    link.setAttribute('download', `${row.name || 'report'}.zip`)
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
     
+    // 释放URL对象
+    window.URL.revokeObjectURL(url)
+    
     ElMessage.success('报告下载成功')
   } catch (error) {
     console.error('下载报告失败:', error)
-    ElMessage.error('下载报告失败')
+    ElMessage.error('下载报告失败: ' + (error.message || '未知错误'))
   }
 }
 
 // 处理删除报告
 const handleDeleteReport = (row) => {
   ElMessageBox.confirm(
-    `确定要删除报告 "${row.name}" 吗？`,
+    `确定要删除报告 "${row.name}" 吗？此操作不可恢复。`,
     '删除确认',
     {
-      confirmButtonText: '确定',
+      confirmButtonText: '确定删除',
       cancelButtonText: '取消',
       type: 'warning'
     }
   ).then(async () => {
     try {
+      ElMessage.info('正在删除报告，请稍候...')
       await deleteReport(row.id)
-      ElMessage.success('删除成功')
+      ElMessage.success('报告删除成功')
+      // 刷新列表
       fetchReportList()
     } catch (error) {
       console.error('删除报告失败:', error)
-      ElMessage.error('删除报告失败')
+      ElMessage.error('删除报告失败: ' + (error.message || '未知错误'))
     }
   }).catch(() => {
-    // 取消删除
+    // 用户取消删除
+    ElMessage.info('已取消删除')
   })
 }
 
@@ -715,6 +741,34 @@ onMounted(() => {
 /* 调整数据表格上方的间距 */
 .report-data-table {
   margin-top: -10px;
+}
+
+/* 操作栏按钮样式 */
+:deep(.action-view-btn),
+:deep(.action-download-btn),
+:deep(.action-delete-btn) {
+  padding: 6px 10px;
+  margin: 0 2px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 50px;
+}
+
+:deep(.action-buttons) {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+}
+
+/* 确保报告类型标签居中显示 */
+:deep(.el-table .cell) {
+  display: flex;
+  justify-content: center;
+}
+
+:deep(.el-table .el-table__cell:not(.is-center) .cell) {
+  justify-content: flex-start;
 }
 
 /* 确保分页区域可见 */

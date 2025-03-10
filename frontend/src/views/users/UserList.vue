@@ -1,7 +1,10 @@
 <template>
   <div class="user-list-container">
     <div class="page-container">
-      <h2 class="page-title">用户管理</h2>
+      <div class="title-section">
+        <h2 class="page-title">用户管理</h2>
+        <p class="page-description">创建和管理系统用户，分配权限和角色</p>
+      </div>
       
       <div class="table-operations">
         <el-button type="primary" @click="handleAdd">添加用户</el-button>
@@ -334,5 +337,36 @@ onMounted(() => {
   padding: 20px;
   border-radius: 4px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+}
+
+.title-section {
+  max-width: 70%;
+  margin-bottom: 20px;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  position: relative;
+  padding-bottom: 10px;
+}
+
+.page-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(to right, var(--primary-color, #3498db), var(--primary-light, #2980b9));
+  border-radius: 3px;
+}
+
+.page-description {
+  color: var(--text-secondary, #606266);
+  font-size: 14px;
+  margin-top: 8px;
+  line-height: 1.5;
 }
 </style> 

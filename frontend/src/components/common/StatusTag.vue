@@ -122,16 +122,20 @@ const displayText = computed(() => {
 <style scoped>
 .status-tag-wrapper {
   display: inline-flex;
+  justify-content: center;
+  width: 100%;
 }
 
 .status-tag {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 4px;
   padding: 0 10px;
   height: 24px;
   border-radius: 4px;
   font-weight: 500;
+  text-align: center;
 }
 
 .status-icon {
