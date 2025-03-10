@@ -68,6 +68,18 @@ const routes = [
         name: 'ExecutionDetail',
         component: () => import('@/views/executions/ExecutionDetail.vue'),
         meta: { title: '测试执行详情', icon: 'document' }
+      },
+      {
+        path: 'reports',
+        name: 'ReportList',
+        component: () => import('@/views/reports/ReportList.vue'),
+        meta: { title: '测试报告管理', icon: 'el-icon-document-copy' }
+      },
+      {
+        path: 'reports/:id',
+        name: 'ReportDetail',
+        component: () => import('@/views/reports/ReportDetail.vue'),
+        meta: { title: '测试报告详情', icon: 'document' }
       }
     ]
   },

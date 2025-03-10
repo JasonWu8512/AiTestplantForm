@@ -22,6 +22,18 @@ service.interceptors.request.use(
     const token = localStorage.getItem('token')
     console.log(`请求: ${config.method.toUpperCase()} ${config.url}`)
     console.log('完整请求URL:', `${config.baseURL}${config.url}`)
+    
+    // 处理空参数
+    if (config.params) {
+      // 移除值为空字符串、null或undefined的参数
+      Object.keys(config.params).forEach(key => {
+        if (config.params[key] === '' || config.params[key] === null || config.params[key] === undefined) {
+          delete config.params[key]
+        }
+      })
+      console.log('处理后的请求参数:', config.params)
+    }
+    
     console.log('请求配置:', {
       url: config.url,
       method: config.method,

@@ -64,6 +64,15 @@ export const RESULT_API = {
   BATCH_UPDATE: '/executions/results/batch_update/',
 }
 
+// 测试报告相关API路径
+export const REPORT_API = {
+  LIST: '/reports/',
+  DETAIL: (id) => `/reports/${id}/`,
+  GENERATE: '/reports/generate/',
+  DOWNLOAD: (id) => `/reports/${id}/download/`,
+  VIEW: (id) => `/reports/${id}/view/`,
+}
+
 // Dashboard相关API路径
 export const DASHBOARD_API = {
   SUMMARY: '/dashboard/summary/',
@@ -111,6 +120,7 @@ export default {
   TESTPLAN_API,
   EXECUTION_API,
   RESULT_API,
+  REPORT_API,
   DASHBOARD_API,
   getFullPath,
   buildApiPath,

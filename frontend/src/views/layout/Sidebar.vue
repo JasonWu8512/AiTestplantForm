@@ -33,6 +33,11 @@
         <span>测试执行管理</span>
       </el-menu-item>
       
+      <el-menu-item index="/reports">
+        <el-icon><Document /></el-icon>
+        <span>测试报告管理</span>
+      </el-menu-item>
+      
       <el-menu-item index="/users" v-if="isAdmin">
         <el-icon><user /></el-icon>
         <span>用户管理</span>

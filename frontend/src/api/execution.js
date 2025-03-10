@@ -7,10 +7,34 @@ import { EXECUTION_API, RESULT_API, TESTPLAN_API, getFullPath } from '@/utils/ap
  * @returns {Promise} - 返回Promise对象
  */
 export function getExecutionList(params) {
+  console.log('API调用: getExecutionList, 参数:', params)
+  
+  // 构建URL查询参数
+  let url = getFullPath(EXECUTION_API.LIST)
+  
+  // 如果有参数，添加到URL
+  if (params && Object.keys(params).length > 0) {
+    const queryParams = []
+    
+    // 遍历参数
+    Object.keys(params).forEach(key => {
+      // 只添加非空参数
+      if (params[key] !== null && params[key] !== undefined && params[key] !== '') {
+        queryParams.push(`${key}=${encodeURIComponent(params[key])}`)
+      }
+    })
+    
+    // 如果有查询参数，添加到URL
+    if (queryParams.length > 0) {
+      url += '?' + queryParams.join('&')
+    }
+  }
+  
+  console.log('最终请求URL:', url)
+  
   return request({
-    url: getFullPath(EXECUTION_API.LIST),
-    method: 'get',
-    params
+    url: url,
+    method: 'get'
   })
 }
 

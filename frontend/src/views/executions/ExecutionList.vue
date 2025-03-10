@@ -275,59 +275,40 @@ const createDialog = reactive({
 const fetchExecutionList = async () => {
   loading.value = true
   
-  // 记录操作日志
-  console.info('获取测试执行列表', {
-    planName: searchForm.planName,
-    status: searchForm.status,
-    currentPage: pagination.currentPage,
-    pageSize: pagination.pageSize
-  })
-  
   try {
+    // 构建查询参数
     const params = {
-      plan_name: searchForm.planName || undefined,
-      status: searchForm.status || undefined
+      plan_name: searchForm.planName,
+      status: searchForm.status
     }
     
     console.log('发送到后端的参数:', JSON.stringify(params))
     
     const response = await getExecutionList(params)
-    console.log('测试执行列表原始响应:', response)
     
-    // 简化数据处理逻辑，直接使用后端返回的数组数据
+    // 更健壮的数据处理
     if (Array.isArray(response)) {
-      console.log('检测到数组格式响应')
-      // 过滤掉无效的记录（没有id或者其他关键信息的记录）
-      allExecutions.value = response.filter(item => item && item.id)
-      pagination.total = allExecutions.value.length
-    } else if (response && response.results && Array.isArray(response.results)) {
-      console.log('检测到分页格式响应')
-      // 过滤掉无效的记录
-      allExecutions.value = response.results.filter(item => item && item.id)
-      pagination.total = allExecutions.value.length
-    } else if (response && Array.isArray(response.data)) {
-      console.log('检测到data数组格式响应')
-      // 过滤掉无效的记录
-      allExecutions.value = response.data.filter(item => item && item.id)
-      pagination.total = response.total || allExecutions.value.length
+      allExecutions.value = response
+    } else if (response && Array.isArray(response.results)) {
+      allExecutions.value = response.results
+    } else if (response && response.data && Array.isArray(response.data)) {
+      allExecutions.value = response.data
     } else {
-      console.warn('未知的响应格式，无法解析测试执行列表:', response)
-      allExecutions.value = []
-      pagination.total = 0
+      console.warn('未能识别的响应格式或数据为空，将尝试直接使用:', response)
+      // 如果无法识别格式，但响应不为空，尝试直接使用
+      allExecutions.value = Array.isArray(response) ? response : []
     }
     
     // 应用分页
     applyPagination()
-    
-    // 显示成功消息
-    if (allExecutions.value.length === 0) {
-      feedback.showInfo('没有找到符合条件的测试执行')
-    }
   } catch (error) {
+    console.error('获取测试执行列表失败:', error)
+    if (error.response) {
+      console.error('错误响应数据:', error.response.data)
+      console.error('错误状态码:', error.response.status)
+    }
     handleApiError(error, '获取测试执行列表失败')
     allExecutions.value = []
-    displayedExecutions.value = []
-    pagination.total = 0
   } finally {
     loading.value = false
   }
@@ -435,7 +416,19 @@ const handleSearch = () => {
     planName: searchForm.planName,
     status: searchForm.status
   })
+  
+  // 构建查询参数
+  const params = {
+    plan_name: searchForm.planName,
+    status: searchForm.status
+  }
+  
+  console.log('发送到后端的搜索参数:', JSON.stringify(params))
+  
+  // 重置分页到第一页
   pagination.currentPage = 1
+  
+  // 获取测试执行列表
   fetchExecutionList()
 }
 
@@ -444,7 +437,19 @@ const resetSearch = () => {
   console.log('重置搜索条件')
   searchForm.planName = ''
   searchForm.status = ''
+  
+  // 构建查询参数
+  const params = {
+    plan_name: searchForm.planName,
+    status: searchForm.status
+  }
+  
+  console.log('重置后发送到后端的参数:', JSON.stringify(params))
+  
+  // 重置分页到第一页
   pagination.currentPage = 1
+  
+  // 获取测试执行列表
   fetchExecutionList()
 }
 
