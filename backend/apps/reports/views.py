@@ -39,6 +39,18 @@ class ReportViewSet(viewsets.ModelViewSet):
     ordering_fields = ['created_at', 'updated_at']
     ordering = ['-created_at']
     
+    def get_permissions(self):
+        """
+        根据不同的操作返回不同的权限
+        
+        Returns:
+            list: 权限列表
+        """
+        if self.action == 'view':
+            # 查看报告不需要认证
+            return []
+        return [permission() for permission in self.permission_classes]
+    
     def get_serializer_class(self):
         """
         根据不同的操作返回不同的序列化器
@@ -153,6 +165,28 @@ class ReportViewSet(viewsets.ModelViewSet):
         Returns:
             HttpResponse: HTML响应
         """
+        # 检查是否通过URL参数传递了token
+        token = request.GET.get('token')
+        if token and not request.user.is_authenticated:
+            # 尝试从token中获取用户
+            from rest_framework_simplejwt.tokens import AccessToken
+            try:
+                # 解析token
+                access_token = AccessToken(token)
+                user_id = access_token['user_id']
+                
+                # 获取用户
+                from django.contrib.auth import get_user_model
+                User = get_user_model()
+                user = User.objects.get(id=user_id)
+                
+                # 设置请求的用户
+                request.user = user
+            except Exception as e:
+                # 记录错误但继续处理
+                logging.error(f"Token验证失败: {str(e)}")
+                pass
+        
         report = self.get_object()
         file_path = report.file_path
         

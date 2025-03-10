@@ -1,98 +1,117 @@
 <template>
-  <div class="report-list-container">
+  <div class="report-list-container fullscreen-container">
     <div class="page-header">
-      <h2>测试报告管理</h2>
+      <h2 class="page-title">测试报告管理</h2>
+      <div class="report-actions">
+        <el-button type="primary" @click="handleGenerateReport">
+          <el-icon><Plus /></el-icon>生成报告
+        </el-button>
+      </div>
     </div>
     
     <!-- 搜索栏 -->
-    <div class="search-bar">
-      <el-input
-        v-model="searchKeyword"
-        placeholder="搜索报告名称或测试计划"
-        clearable
-        @clear="handleSearch"
-        @keyup.enter="handleSearch"
-      >
-        <template #append>
-          <el-button @click="handleSearch">
-            <el-icon><Search /></el-icon>
-          </el-button>
-        </template>
-      </el-input>
-      
-      <el-select 
-        v-model="reportTypeFilter" 
-        placeholder="报告类型" 
-        clearable
-        @change="handleSearch"
-      >
-        <el-option label="Allure报告" value="allure"></el-option>
-        <el-option label="HTML报告" value="html"></el-option>
-        <el-option label="PDF报告" value="pdf"></el-option>
-      </el-select>
-      
-      <el-button type="primary" @click="handleGenerateReport">
-        <el-icon><Plus /></el-icon>生成报告
-      </el-button>
+    <div class="search-container">
+      <el-form :inline="true" class="search-form">
+        <el-form-item label="报告名称">
+          <el-input
+            v-model="searchKeyword"
+            placeholder="搜索报告名称或测试计划"
+            clearable
+            @clear="handleSearch"
+            @keyup.enter="handleSearch"
+          >
+            <template #append>
+              <el-button @click="handleSearch">
+                <el-icon><Search /></el-icon>
+              </el-button>
+            </template>
+          </el-input>
+        </el-form-item>
+        
+        <el-form-item label="报告类型">
+          <el-select 
+            v-model="reportTypeFilter" 
+            placeholder="报告类型" 
+            clearable
+            @change="handleSearch"
+            style="width: 150px;"
+          >
+            <el-option label="Allure报告" value="allure"></el-option>
+            <el-option label="HTML报告" value="html"></el-option>
+            <el-option label="PDF报告" value="pdf"></el-option>
+          </el-select>
+        </el-form-item>
+        
+        <el-form-item>
+          <el-button type="primary" @click="handleSearch">搜索</el-button>
+          <el-button @click="resetSearch">重置</el-button>
+        </el-form-item>
+      </el-form>
     </div>
     
-    <!-- 报告列表 -->
-    <el-table
-      v-loading="loading"
-      :data="reportList"
-      border
-      style="width: 100%"
-    >
-      <el-table-column prop="id" label="ID" width="80"></el-table-column>
-      <el-table-column prop="name" label="报告名称" min-width="200"></el-table-column>
-      <el-table-column prop="execution_name" label="测试计划" min-width="200"></el-table-column>
-      <el-table-column prop="report_type_display" label="报告类型" width="120"></el-table-column>
-      <el-table-column prop="creator_name" label="创建者" width="120"></el-table-column>
-      <el-table-column prop="created_at" label="创建时间" width="180">
-        <template #default="scope">
-          {{ formatDateTime(scope.row.created_at) }}
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" width="250" fixed="right">
-        <template #default="scope">
-          <div class="operation-buttons">
-            <el-button
-              type="primary"
-              size="small"
-              @click="handleViewReport(scope.row)"
-            >
-              查看
-            </el-button>
-            <el-button
-              type="success"
-              size="small"
-              @click="handleDownloadReport(scope.row)"
-            >
-              下载
-            </el-button>
-            <el-button
-              type="danger"
-              size="small"
-              @click="handleDeleteReport(scope.row)"
-            >
-              删除
-            </el-button>
-          </div>
-        </template>
-      </el-table-column>
-    </el-table>
-    
-    <!-- 分页 -->
-    <div class="pagination-container">
-      <el-pagination
-        v-model:current-page="pagination.currentPage"
-        v-model:page-size="pagination.pageSize"
-        :page-sizes="[10, 20, 50, 100]"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="pagination.total"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-      ></el-pagination>
+    <!-- 内容区域 -->
+    <div class="content-wrapper">
+      <!-- 报告列表 -->
+      <div class="table-container">
+        <el-table
+          v-loading="loading"
+          :data="reportList"
+          border
+          style="width: 100%"
+          height="100%"
+        >
+          <el-table-column prop="id" label="ID" width="80"></el-table-column>
+          <el-table-column prop="name" label="报告名称" min-width="200"></el-table-column>
+          <el-table-column prop="execution_name" label="测试计划" min-width="200"></el-table-column>
+          <el-table-column prop="report_type_display" label="报告类型" width="120"></el-table-column>
+          <el-table-column prop="creator_name" label="创建者" width="120"></el-table-column>
+          <el-table-column prop="created_at" label="创建时间" width="180">
+            <template #default="scope">
+              {{ formatDateTime(scope.row.created_at) }}
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" width="250" fixed="right">
+            <template #default="scope">
+              <div class="operation-buttons">
+                <el-button
+                  type="primary"
+                  size="small"
+                  @click="handleViewReport(scope.row)"
+                >
+                  查看
+                </el-button>
+                <el-button
+                  type="success"
+                  size="small"
+                  @click="handleDownloadReport(scope.row)"
+                >
+                  下载
+                </el-button>
+                <el-button
+                  type="danger"
+                  size="small"
+                  @click="handleDeleteReport(scope.row)"
+                >
+                  删除
+                </el-button>
+              </div>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+      
+      <!-- 分页 -->
+      <div class="pagination-container">
+        <el-pagination
+          v-model:current-page="pagination.currentPage"
+          v-model:page-size="pagination.pageSize"
+          :page-sizes="[10, 20, 50, 100]"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="pagination.total"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+        ></el-pagination>
+      </div>
     </div>
     
     <!-- 生成报告对话框 -->
@@ -224,6 +243,14 @@ const handleSearch = () => {
   fetchReportList()
 }
 
+// 重置搜索
+const resetSearch = () => {
+  searchKeyword.value = ''
+  reportTypeFilter.value = ''
+  pagination.currentPage = 1
+  fetchReportList()
+}
+
 // 处理分页大小变化
 const handleSizeChange = (size) => {
   pagination.pageSize = size
@@ -282,8 +309,9 @@ const submitGenerateReport = async () => {
 
 // 处理查看报告
 const handleViewReport = (row) => {
-  // 在新窗口打开报告
-  window.open(`/api${getFullPath(REPORT_API.VIEW(row.id))}`, '_blank')
+  // 在新窗口直接打开报告，不需要认证
+  const apiUrl = `/api${REPORT_API.VIEW(row.id)}`
+  window.open(apiUrl, '_blank')
 }
 
 // 处理下载报告
@@ -344,8 +372,9 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* 使用fullscreen-container的样式，移除原有的padding */
 .report-list-container {
-  padding: 20px;
+  /* padding已由fullscreen-container提供 */
 }
 
 .page-header {
@@ -355,14 +384,25 @@ onMounted(() => {
   margin-bottom: 20px;
 }
 
-.search-bar {
+.page-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.report-actions {
   display: flex;
-  margin-bottom: 20px;
   gap: 10px;
 }
 
-.search-bar .el-input {
-  width: 300px;
+.search-container {
+  margin-bottom: 20px;
+}
+
+.search-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .operation-buttons {
@@ -370,9 +410,5 @@ onMounted(() => {
   gap: 5px;
 }
 
-.pagination-container {
-  margin-top: 20px;
-  display: flex;
-  justify-content: flex-end;
-}
+/* 表格容器和分页容器样式由fullscreen-container提供 */
 </style> 

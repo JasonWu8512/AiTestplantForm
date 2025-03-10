@@ -56,7 +56,7 @@
         </div>
       </template>
       
-      <iframe :src="`/api${getFullPath(REPORT_API.VIEW(reportId))}`" class="preview-iframe"></iframe>
+      <iframe :src="`${getFullPath(REPORT_API.VIEW(reportId))}`" class="preview-iframe"></iframe>
     </el-card>
   </div>
 </template>
@@ -95,7 +95,7 @@ const goBack = () => {
 
 // 查看报告
 const handleViewReport = () => {
-  window.open(`/api${getFullPath(REPORT_API.VIEW(reportId))}`, '_blank')
+  window.open(`${getFullPath(REPORT_API.VIEW(reportId))}`, '_blank')
 }
 
 // 下载报告

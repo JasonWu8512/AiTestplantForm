@@ -645,9 +645,51 @@ const handlePause = async () => {
 // 完成执行
 const handleComplete = async () => {
   try {
-    await completeExecution(executionId.value)
-    ElMessage.success('操作成功')
-    fetchExecutionDetail()
+    // 询问是否自动生成报告
+    const { value: options } = await ElMessageBox.confirm(
+      '是否在完成测试执行后自动生成测试报告？',
+      '完成测试执行',
+      {
+        confirmButtonText: '是',
+        cancelButtonText: '否',
+        type: 'info',
+        showClose: false,
+        distinguishCancelAndClose: true,
+        beforeClose: (action, instance, done) => {
+          if (action === 'confirm') {
+            // 用户选择自动生成报告
+            completeExecution(executionId.value, { autoGenerateReport: true })
+              .then(() => {
+                ElMessage.success('操作成功，测试报告生成任务已提交')
+                fetchExecutionDetail()
+                done()
+              })
+              .catch(error => {
+                console.error('操作失败:', error)
+                ElMessage.error('操作失败')
+                done()
+              })
+          } else if (action === 'cancel') {
+            // 用户选择不自动生成报告
+            completeExecution(executionId.value, { autoGenerateReport: false })
+              .then(() => {
+                ElMessage.success('操作成功，未生成测试报告')
+                fetchExecutionDetail()
+                done()
+              })
+              .catch(error => {
+                console.error('操作失败:', error)
+                ElMessage.error('操作失败')
+                done()
+              })
+          } else {
+            done()
+          }
+        }
+      }
+    ).catch(() => {
+      // 用户关闭对话框，不执行任何操作
+    })
   } catch (error) {
     console.error('操作失败:', error)
     ElMessage.error('操作失败')

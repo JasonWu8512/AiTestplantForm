@@ -15,6 +15,8 @@ from rest_framework.permissions import IsAuthenticated
 from .models import TestExecution, TestResult
 from .serializers import TestExecutionSerializer, TestResultSerializer
 from apps.testplans.models import TestPlan, TestPlanCase
+from apps.testcases.models import TestCase
+from apps.reports.views import generate_report
 import logging
 
 
@@ -155,8 +157,27 @@ class TestExecutionViewSet(viewsets.ModelViewSet):
         execution.end_time = timezone.now()
         execution.save()
         
+        # 自动生成测试报告
+        auto_generate_report = request.data.get('auto_generate_report', True)
+        if auto_generate_report:
+            # 默认生成Allure报告
+            report_type = request.data.get('report_type', 'allure')
+            # 生成默认报告名称
+            report_name = f"{execution.plan.name} - 自动生成报告 - {timezone.now().strftime('%Y-%m-%d %H:%M:%S')}"
+            # 生成默认描述
+            description = f"测试执行 {execution.id} 完成后自动生成的报告"
+            
+            # 异步生成报告
+            generate_report.delay(
+                execution_id=execution.id,
+                report_type=report_type,
+                name=report_name,
+                description=description,
+                user_id=request.user.id
+            )
+        
         return Response({
-            'message': '测试执行已完成'
+            'message': '测试执行已完成，报告生成任务已提交'
         })
     
     @action(detail=True, methods=['post'])

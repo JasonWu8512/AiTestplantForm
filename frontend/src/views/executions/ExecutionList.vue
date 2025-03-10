@@ -227,6 +227,7 @@ import {
 import { getTestPlans, getTestPlanById } from '@/api/testplan'
 import feedback from '@/utils/feedback'
 import errorMonitor from '@/utils/error-monitor'
+import { ElMessageBox } from 'element-plus'
 
 const router = useRouter()
 const route = useRoute()
@@ -717,14 +718,36 @@ const handlePause = async (row) => {
 // 完成执行
 const handleComplete = async (row) => {
   try {
+    // 询问是否自动生成报告
+    const { action } = await ElMessageBox.confirm(
+      '是否在完成测试执行后自动生成测试报告？',
+      '完成测试执行',
+      {
+        confirmButtonText: '是',
+        cancelButtonText: '否',
+        type: 'info',
+        distinguishCancelAndClose: true
+      }
+    )
+    
     // 显示加载状态
     const loadingInstance = feedback.showLoading('正在完成测试执行...')
     
-    await completeExecution(row.id)
-    feedback.showSuccess('完成执行成功')
+    if (action === 'confirm') {
+      // 用户选择自动生成报告
+      await completeExecution(row.id, { autoGenerateReport: true })
+      feedback.showSuccess('完成执行成功，测试报告生成任务已提交')
+    } else {
+      // 用户选择不自动生成报告
+      await completeExecution(row.id, { autoGenerateReport: false })
+      feedback.showSuccess('完成执行成功，未生成测试报告')
+    }
+    
     await fetchExecutionList()
   } catch (error) {
-    handleApiError(error, '完成执行失败')
+    if (error !== 'cancel') { // 忽略用户取消的情况
+      handleApiError(error, '完成执行失败')
+    }
   } finally {
     // 隐藏加载状态
     feedback.hideLoading()

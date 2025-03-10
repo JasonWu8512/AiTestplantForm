@@ -116,12 +116,19 @@ export function pauseExecution(id) {
 /**
  * 完成测试执行
  * @param {Number} id - 测试执行ID
+ * @param {Object} options - 选项
+ * @param {Boolean} options.autoGenerateReport - 是否自动生成报告
+ * @param {String} options.reportType - 报告类型
  * @returns {Promise} - 返回Promise对象
  */
-export function completeExecution(id) {
+export function completeExecution(id, options = {}) {
   return request({
     url: getFullPath(EXECUTION_API.COMPLETE(id)),
-    method: 'post'
+    method: 'post',
+    data: {
+      auto_generate_report: options.autoGenerateReport !== false, // 默认为true
+      report_type: options.reportType || 'allure'
+    }
   })
 }
 
