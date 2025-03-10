@@ -15,6 +15,7 @@ from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from apps.testcases.urls import project_urlpatterns, testcase_urlpatterns
+from apps.testcases.views import export_testcases
 
 # Swagger文档配置
 schema_view = get_schema_view(
@@ -38,8 +39,11 @@ api_patterns = [
     path('testcases/', include(testcase_urlpatterns)),
     path('testplans/', include('apps.testplans.urls')),
     path('executions/', include('apps.executions.urls')),
+    path('results/', include('apps.executions.urls')),  # 添加测试结果API路由
     # path('reports/', include('apps.reports.urls')),
     path('dashboard/', include('apps.dashboard.urls')),
+    # 添加导出路由
+    path('testcases/export/', export_testcases, name='export-testcases'),
 ]
 
 urlpatterns = [

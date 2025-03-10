@@ -273,6 +273,33 @@
         </span>
       </template>
     </el-dialog>
+    
+    <!-- 导出格式选择对话框 -->
+    <el-dialog
+      v-model="exportFormatDialogVisible"
+      title="导出测试用例"
+      width="500px"
+    >
+      <el-form
+        ref="exportFormatFormRef"
+        :model="exportFormatForm"
+        :rules="exportFormatRules"
+        label-width="100px"
+      >
+        <el-form-item label="导出格式" prop="format">
+          <el-select v-model="exportFormatForm.format" placeholder="请选择导出格式">
+            <el-option label="Excel" value="excel" />
+            <el-option label="CSV" value="csv" />
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="exportFormatDialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="submitExportFormatForm">确定</el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -324,6 +351,13 @@ const importForm = reactive({
   file: null
 })
 
+// 导出格式对话框
+const exportFormatDialogVisible = ref(false)
+const exportFormatFormRef = ref(null)
+const exportFormatForm = reactive({
+  format: 'excel'
+})
+
 // 表单验证规则
 const testCaseRules = {
   name: [
@@ -354,6 +388,13 @@ const importRules = {
   ],
   file: [
     { required: true, message: '请选择文件', trigger: 'change' }
+  ]
+}
+
+// 导出表单验证规则
+const exportFormatRules = {
+  format: [
+    { required: true, message: '请选择导出格式', trigger: 'change' }
   ]
 }
 
@@ -677,7 +718,8 @@ const handleImportExport = (command) => {
     
     importDialogVisible.value = true
   } else if (command === 'export') {
-    handleExportTestCases()
+    // 显示导出格式选择对话框
+    exportFormatDialogVisible.value = true
   }
 }
 
@@ -729,7 +771,7 @@ const submitImportForm = async () => {
 /**
  * 处理导出测试用例
  */
-const handleExportTestCases = async () => {
+const handleExportTestCases = async (format = 'excel') => {
   try {
     const params = {}
     
@@ -753,25 +795,45 @@ const handleExportTestCases = async () => {
       params.project_id = projectFilter.value
     }
     
-    const response = await exportTestCases(params)
+    const response = await exportTestCases(params, format)
     
     // 创建Blob对象
-    const blob = new Blob([response.data], { type: 'application/vnd.ms-excel' })
+    const blob = new Blob([response.data], { 
+      type: format === 'csv' 
+        ? 'text/csv' 
+        : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    })
     
     // 创建下载链接
     const link = document.createElement('a')
     link.href = URL.createObjectURL(blob)
-    link.download = 'test_cases.xlsx'
+    link.download = format === 'csv' ? 'test_cases.csv' : 'test_cases.xlsx'
     link.click()
     
     // 释放URL对象
     URL.revokeObjectURL(link.href)
     
     ElMessage.success('导出成功')
+    
+    // 关闭导出格式选择对话框
+    exportFormatDialogVisible.value = false
   } catch (error) {
     console.error('导出测试用例失败:', error)
     ElMessage.error('导出测试用例失败')
   }
+}
+
+/**
+ * 提交导出格式表单
+ */
+const submitExportFormatForm = () => {
+  if (!exportFormatFormRef.value) return
+  
+  exportFormatFormRef.value.validate((valid) => {
+    if (valid) {
+      handleExportTestCases(exportFormatForm.format)
+    }
+  })
 }
 
 /**

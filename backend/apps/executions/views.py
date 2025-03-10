@@ -211,15 +211,7 @@ class TestExecutionViewSet(viewsets.ModelViewSet):
         if status:
             results = results.filter(status=status)
         
-        # 分页
-        page = self.paginate_queryset(results)
-        if page is not None:
-            serializer = TestResultSerializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-        
-        serializer = TestResultSerializer(results, many=True)
-        
-        # 统计数据
+        # 统计数据 - 在分页前计算，确保统计的是所有符合条件的结果
         stats = {
             'total': results.count(),
             'passed': results.filter(status='passed').count(),
@@ -228,6 +220,17 @@ class TestExecutionViewSet(viewsets.ModelViewSet):
             'skipped': results.filter(status='skipped').count(),
             'pending': results.filter(status='pending').count(),
         }
+        
+        # 分页
+        page = self.paginate_queryset(results)
+        if page is not None:
+            serializer = TestResultSerializer(page, many=True)
+            paginated_response = self.get_paginated_response(serializer.data)
+            # 将统计数据添加到分页响应中
+            paginated_response.data['stats'] = stats
+            return paginated_response
+        
+        serializer = TestResultSerializer(results, many=True)
         
         return Response({
             'results': serializer.data,

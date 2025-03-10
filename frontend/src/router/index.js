@@ -28,6 +28,12 @@ const routes = [
         meta: { title: '测试用例管理', icon: 'el-icon-document' }
       },
       {
+        path: 'testcases/:id',
+        name: 'TestCaseDetail',
+        component: () => import('@/views/testcases/TestCaseDetail.vue'),
+        meta: { title: '测试用例详情', icon: 'document' }
+      },
+      {
         path: 'testplans',
         name: 'TestPlanList',
         component: () => import('@/views/testplans/TestPlanList.vue'),

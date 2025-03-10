@@ -88,12 +88,42 @@ export function getProjectTestCases(id) {
  * @param {Object} params - 查询参数
  * @returns {Promise} - 返回请求Promise
  */
-export function getTestCases(params) {
+export function getTestCaseList(params) {
   return request({
     url: getFullPath(TESTCASE_API.LIST),
     method: 'get',
     params
   })
+}
+
+/**
+ * 获取测试用例列表（别名，兼容性函数）
+ * @param {Object} params - 查询参数
+ * @returns {Promise} - 返回请求Promise
+ */
+export function getTestCases(params) {
+  return getTestCaseList(params);
+}
+
+/**
+ * 获取测试用例详情
+ * @param {Number} id - 测试用例ID
+ * @returns {Promise} - 返回请求Promise
+ */
+export function getTestCaseDetail(id) {
+  return request({
+    url: getFullPath(TESTCASE_API.DETAIL(id)),
+    method: 'get'
+  })
+}
+
+/**
+ * 获取测试用例详情（别名，兼容性函数）
+ * @param {Number} id - 测试用例ID
+ * @returns {Promise} - 返回请求Promise
+ */
+export function getTestCase(id) {
+  return getTestCaseDetail(id);
 }
 
 /**
@@ -136,27 +166,15 @@ export function deleteTestCase(id) {
 }
 
 /**
- * 获取测试用例详情
- * @param {Number} id - 测试用例ID
- * @returns {Promise} - 返回请求Promise
- */
-export function getTestCase(id) {
-  return request({
-    url: getFullPath(TESTCASE_API.DETAIL(id)),
-    method: 'get'
-  })
-}
-
-/**
  * 导入测试用例
- * @param {Object} data - 包含文件和项目ID的FormData对象
+ * @param {FormData} formData - 包含文件的表单数据
  * @returns {Promise} - 返回请求Promise
  */
-export function importTestCases(data) {
+export function importTestCases(formData) {
   return request({
     url: getFullPath(TESTCASE_API.IMPORT),
     method: 'post',
-    data,
+    data: formData,
     headers: {
       'Content-Type': 'multipart/form-data'
     }
@@ -165,7 +183,7 @@ export function importTestCases(data) {
 
 /**
  * 导出测试用例
- * @param {Object} params - 查询参数，用于过滤要导出的测试用例
+ * @param {Object} params - 导出参数
  * @returns {Promise} - 返回请求Promise
  */
 export function exportTestCases(params) {
@@ -173,7 +191,7 @@ export function exportTestCases(params) {
     url: getFullPath(TESTCASE_API.EXPORT),
     method: 'get',
     params,
-    responseType: 'blob' // 指定响应类型为blob
+    responseType: 'blob'
   })
 }
 
@@ -283,4 +301,14 @@ export function removeTestCaseAttachment(id, attachmentId) {
     url: getFullPath(TESTCASE_API.REMOVE_ATTACHMENT(id, attachmentId)),
     method: 'delete'
   })
+}
+
+export default {
+  getTestCaseList,
+  getTestCaseDetail,
+  createTestCase,
+  updateTestCase,
+  deleteTestCase,
+  exportTestCases,
+  importTestCases
 } 

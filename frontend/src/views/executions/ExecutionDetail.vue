@@ -57,11 +57,11 @@
       <div class="info-content">
         <div class="info-item">
           <span class="label">测试计划:</span>
-          <span class="value">{{ executionInfo.plan?.name || '-' }}</span>
+          <span class="value">{{ executionInfo.plan_name || (executionInfo.plan_detail && executionInfo.plan_detail.name) || '-' }}</span>
         </div>
         <div class="info-item">
           <span class="label">执行者:</span>
-          <span class="value">{{ executionInfo.executor?.username || '-' }}</span>
+          <span class="value">{{ executionInfo.executor_name || '-' }}</span>
         </div>
         <div class="info-item">
           <span class="label">开始时间:</span>
@@ -142,7 +142,7 @@
             <el-input v-model="filterForm.caseName" placeholder="用例名称" clearable></el-input>
           </el-form-item>
           <el-form-item label="状态">
-            <el-select v-model="filterForm.status" placeholder="结果状态" clearable>
+            <el-select v-model="filterForm.status" placeholder="结果状态" clearable style="width: 150px;">
               <el-option label="待执行" value="pending"></el-option>
               <el-option label="通过" value="passed"></el-option>
               <el-option label="失败" value="failed"></el-option>
@@ -187,23 +187,25 @@
             {{ scope.row.execution_time ? formatDateTime(scope.row.execution_time) : '-' }}
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="150" fixed="right">
+        <el-table-column label="操作" width="200" fixed="right">
           <template #default="scope">
-            <el-button
-              v-if="['running', 'paused'].includes(executionInfo.status)"
-              type="primary"
-              size="small"
-              @click="handleUpdateResult(scope.row)"
-            >
-              更新结果
-            </el-button>
-            <el-button
-              type="info"
-              size="small"
-              @click="handleViewCase(scope.row.case.id)"
-            >
-              查看用例
-            </el-button>
+            <div class="operation-buttons">
+              <el-button
+                v-if="['running', 'paused'].includes(executionInfo.status)"
+                type="primary"
+                size="small"
+                @click="handleUpdateResult(scope.row)"
+              >
+                更新结果
+              </el-button>
+              <el-button
+                type="info"
+                size="small"
+                @click="handleViewCase(scope.row.case.id)"
+              >
+                查看用例
+              </el-button>
+            </div>
           </template>
         </el-table-column>
       </el-table>
@@ -528,7 +530,14 @@ const goBack = () => {
 
 // 查看测试用例
 const handleViewCase = (caseId) => {
-  router.push(`/testcases/${caseId}`)
+  // 导航到测试用例详情页面，并传递来源和执行ID参数
+  router.push({
+    path: `/testcases/${caseId}`,
+    query: {
+      from: 'execution',
+      executionId: executionId.value
+    }
+  })
 }
 
 // 更新测试结果
@@ -678,6 +687,9 @@ onMounted(() => {
 <style scoped>
 .execution-detail-container {
   padding: 20px;
+  height: calc(100vh - 80px);
+  overflow-y: auto;
+  position: relative;
 }
 
 .execution-header {
@@ -776,7 +788,19 @@ onMounted(() => {
 
 .pagination-container {
   margin-top: 20px;
+  margin-bottom: 20px;
   display: flex;
   justify-content: flex-end;
+}
+
+.operation-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.operation-buttons .el-button {
+  margin-left: 0;
+  margin-right: 0;
 }
 </style> 

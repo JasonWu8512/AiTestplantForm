@@ -59,9 +59,9 @@ export const EXECUTION_API = {
 
 // 测试结果相关API路径
 export const RESULT_API = {
-  LIST: '/results/',
-  DETAIL: (id) => `/results/${id}/`,
-  BATCH_UPDATE: '/results/batch_update/',
+  LIST: '/executions/results/',
+  DETAIL: (id) => `/executions/results/${id}/`,
+  BATCH_UPDATE: '/executions/results/batch_update/',
 }
 
 // Dashboard相关API路径

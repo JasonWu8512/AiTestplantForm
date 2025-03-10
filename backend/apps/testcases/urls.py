@@ -8,7 +8,7 @@
 
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import ProjectViewSet, TestCaseViewSet
+from .views import ProjectViewSet, TestCaseViewSet, export_testcases, simple_export
 
 # 创建项目路由器 - 用于/api/projects/路径
 project_router = DefaultRouter()
@@ -26,4 +26,7 @@ project_urlpatterns = [
 # 测试用例URL模式
 testcase_urlpatterns = [
     path('', include(testcase_router.urls)),
+    # 添加自定义路由
+    path('export/', export_testcases, name='export-testcases'),
+    path('simple-export/', simple_export, name='simple-export'),
 ] 
