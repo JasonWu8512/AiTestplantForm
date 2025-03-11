@@ -63,7 +63,7 @@
           </el-table-column>
           <el-table-column label="操作" width="250" fixed="right">
             <template #default="scope">
-              <el-button size="small" type="primary" class="ocean-button" @click="handleViewTestCases(scope.row)">
+              <el-button size="small" type="default" class="view-btn ocean-button" @click="handleViewTestCases(scope.row)">
                 查看用例
               </el-button>
               <el-button size="small" type="primary" class="ocean-button" @click="handleEditProject(scope.row)">
@@ -428,8 +428,8 @@ const formatDate = (dateString) => {
 
 .page-description {
   color: var(--text-secondary, #606266);
-  font-size: 14px;
-  margin-top: 8px;
+  font-size: var(--font-size-md, 14px);
+  margin-top: var(--spacing-sm, 8px);
   line-height: 1.5;
 }
 
@@ -468,4 +468,11 @@ const formatDate = (dateString) => {
 }
 
 /* 使用fullscreen-container中的pagination-container样式 */
+
+/* 查看按钮样式 */
+.view-btn {
+  color: #409EFF !important;
+  border-color: #409EFF !important;
+  font-weight: 500;
+}
 </style> 

@@ -478,7 +478,7 @@ const getActionButtons = (row) => {
       key: 'view',
       text: '查看',
       tooltip: null,
-      type: 'primary',
+      type: 'default',
       icon: null,
       class: 'action-view-btn'
     },
@@ -749,10 +749,12 @@ onMounted(() => {
 :deep(.action-delete-btn) {
   padding: 6px 10px;
   margin: 0 2px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-width: 50px;
+}
+
+:deep(.action-view-btn) {
+  color: #409EFF;
+  border-color: #409EFF;
+  font-weight: 500;
 }
 
 :deep(.action-buttons) {

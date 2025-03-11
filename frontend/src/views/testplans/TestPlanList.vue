@@ -77,7 +77,7 @@
           </el-table-column>
           <el-table-column label="操作" width="250" fixed="right">
             <template #default="scope">
-              <el-button size="small" type="primary" @click="handleViewTestPlan(scope.row)">
+              <el-button size="small" type="default" class="view-btn" @click="handleViewTestPlan(scope.row)">
                 查看
               </el-button>
               <el-button size="small" type="primary" @click="handleEditTestPlan(scope.row)">
@@ -990,8 +990,8 @@ const formatDate = (dateString) => {
 
 .page-description {
   color: var(--text-secondary, #606266);
-  font-size: 14px;
-  margin-top: 8px;
+  font-size: var(--font-size-md, 14px);
+  margin-top: var(--spacing-sm, 8px);
   line-height: 1.5;
 }
 
@@ -1109,5 +1109,12 @@ const formatDate = (dateString) => {
 :deep(.el-button--danger:hover) {
   background-color: #f78989;
   border-color: #f78989;
+}
+
+/* 查看按钮样式 */
+.view-btn {
+  color: #409EFF;
+  border-color: #409EFF;
+  font-weight: 500;
 }
 </style> 

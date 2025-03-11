@@ -896,8 +896,8 @@ const getStatusColor = (status) => {
 
 .page-description {
   color: var(--text-secondary, #606266);
-  font-size: 14px;
-  margin-top: 8px;
+  font-size: var(--font-size-md, 14px);
+  margin-top: var(--spacing-sm, 8px);
   line-height: 1.5;
 }
 

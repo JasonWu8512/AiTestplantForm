@@ -135,9 +135,9 @@
                 中止
               </el-button>
               <el-button
-                type="primary"
+                type="default"
                 size="small"
-                class="ocean-button"
+                class="ocean-button view-btn"
                 @click.stop="handleView(scope.row)"
               >
                 查看
@@ -1183,8 +1183,8 @@ const handleCheckDatabaseRecords = async () => {
 
 .page-description {
   color: var(--text-secondary, #606266);
-  font-size: 14px;
-  margin-top: 8px;
+  font-size: var(--font-size-md, 14px);
+  margin-top: var(--spacing-sm, 8px);
   line-height: 1.5;
 }
 
@@ -1275,4 +1275,11 @@ const handleCheckDatabaseRecords = async () => {
 }
 
 /* 使用fullscreen-container中的pagination-container样式 */
+
+/* 查看按钮样式 */
+.view-btn {
+  color: #409EFF !important;
+  border-color: #409EFF !important;
+  font-weight: 500;
+}
 </style> 

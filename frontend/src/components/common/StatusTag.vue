@@ -136,6 +136,8 @@ const displayText = computed(() => {
   border-radius: 4px;
   font-weight: 500;
   text-align: center;
+  margin: 0 auto;
+  min-width: 80px;
 }
 
 .status-icon {

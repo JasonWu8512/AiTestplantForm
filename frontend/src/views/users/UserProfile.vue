@@ -11,175 +11,194 @@
  */
 -->
 <template>
-  <div class="profile-container">
-    <div class="page-container">
+  <div class="profile-wrapper">
+    <div class="profile-page">
       <div class="page-header">
-        <h2 class="page-title">个人信息</h2>
-        <el-button @click="handleBack" plain icon="el-icon-back" class="back-button">返回</el-button>
+        <div class="title-section">
+          <h2 class="page-title">个人信息</h2>
+          <p class="page-description">查看和编辑个人资料，管理账户信息和安全设置</p>
+        </div>
+        <el-button @click="handleBack" plain class="back-button">
+          <el-icon><ArrowLeft /></el-icon>返回
+        </el-button>
       </div>
       
-      <el-tabs v-model="activeTab" class="custom-tabs">
-        <el-tab-pane label="基本信息" name="basic">
-          <el-form ref="basicFormRef" :model="basicForm" :rules="basicRules" label-width="100px" class="form-container">
-            <!-- 头像选择区域 -->
-            <el-form-item label="头像" class="avatar-form-item">
-              <div class="avatar-container">
-                <div class="avatar-preview-section">
-                  <el-avatar :size="120" :src="avatarPreview" class="avatar-preview">{{ userInitials }}</el-avatar>
-                  <div class="avatar-actions">
-                    <el-button type="primary" size="small" @click="triggerFileInput" class="action-button">
-                      <i class="el-icon-upload"></i> 上传头像
-                    </el-button>
-                    <input 
-                      type="file" 
-                      ref="fileInput" 
-                      style="display: none" 
-                      accept="image/jpeg,image/png,image/gif"
-                      @change="handleFileChange"
-                    />
-                    <el-button v-if="hasCustomAvatar" type="danger" size="small" @click="removeCustomAvatar" class="action-button">
-                      <i class="el-icon-delete"></i> 移除
-                    </el-button>
-                  </div>
-                </div>
-                
-                <div class="avatar-options">
-                  <div class="section-title">选择默认头像</div>
-                  <div class="default-avatars-grid">
-                    <div 
-                      v-for="(avatar, index) in defaultAvatars" 
-                      :key="index" 
-                      class="avatar-item"
-                      :class="{ 'selected': selectedDefaultAvatar === avatar }"
-                      @click="selectDefaultAvatar(avatar)"
-                    >
-                      <img :src="avatar" alt="默认头像" class="avatar-img" />
-                      <div class="avatar-check" v-if="selectedDefaultAvatar === avatar">
-                        <i class="el-icon-check"></i>
-                      </div>
+      <div class="content-box">
+        <el-tabs v-model="activeTab" class="custom-tabs">
+          <el-tab-pane label="基本信息" name="basic">
+            <el-form ref="basicFormRef" :model="basicForm" :rules="basicRules" label-width="100px" class="form-container">
+              <!-- 头像选择区域 -->
+              <el-form-item label="头像" class="avatar-form-item">
+                <div class="avatar-container">
+                  <div class="avatar-preview-section">
+                    <el-avatar :size="120" :src="avatarPreview" class="avatar-preview">{{ userInitials }}</el-avatar>
+                    <div class="avatar-actions">
+                      <el-button type="primary" size="small" @click="triggerFileInput" class="action-button">
+                        <el-icon><Upload /></el-icon> 上传头像
+                      </el-button>
+                      <input 
+                        type="file" 
+                        ref="fileInput" 
+                        style="display: none" 
+                        accept="image/jpeg,image/png,image/gif"
+                        @change="handleFileChange"
+                      />
+                      <el-button v-if="hasCustomAvatar" type="danger" size="small" @click="removeCustomAvatar" class="action-button">
+                        <el-icon><Delete /></el-icon> 移除
+                      </el-button>
                     </div>
                   </div>
                   
-                  <div class="upload-info" v-if="customAvatarFile">
-                    <div class="selected-file-info">
-                      <i class="el-icon-document"></i> 已选择: {{ customAvatarFile.name }}
+                  <div class="avatar-options">
+                    <div class="section-title">选择默认头像</div>
+                    <div class="default-avatars-grid">
+                      <div 
+                        v-for="(avatar, index) in defaultAvatars" 
+                        :key="index" 
+                        class="avatar-item"
+                        :class="{ 'selected': selectedDefaultAvatar === avatar }"
+                        @click="selectDefaultAvatar(avatar)"
+                      >
+                        <img :src="avatar" alt="默认头像" class="avatar-img" />
+                        <div class="avatar-check" v-if="selectedDefaultAvatar === avatar">
+                          <el-icon><Check /></el-icon>
+                        </div>
+                      </div>
                     </div>
-                    <div class="upload-tips">
-                      <i class="el-icon-info-circle"></i> 点击"保存"按钮完成上传
+                    
+                    <div class="upload-info" v-if="customAvatarFile">
+                      <div class="selected-file-info">
+                        <el-icon><Document /></el-icon> 已选择: {{ customAvatarFile.name }}
+                      </div>
+                      <div class="upload-tips">
+                        <el-icon><InfoFilled /></el-icon> 点击"保存"按钮完成上传
+                      </div>
                     </div>
-                  </div>
-                  <div class="upload-tips" v-else>
-                    <i class="el-icon-info-circle"></i> 支持JPG、PNG、GIF格式，文件大小不超过2MB
+                    <div class="upload-tips" v-else>
+                      <el-icon><InfoFilled /></el-icon> 支持JPG、PNG、GIF格式，文件大小不超过2MB
+                    </div>
                   </div>
                 </div>
-              </div>
-            </el-form-item>
-            
-            <div class="form-divider"></div>
-            
-            <div class="form-section-title">基本资料</div>
-            
-            <el-form-item label="用户名" class="form-item">
-              <el-input v-model="basicForm.username" disabled class="form-input disabled-input" />
-            </el-form-item>
-            
-            <el-form-item label="邮箱" prop="email" class="form-item">
-              <el-input v-model="basicForm.email" @input="formChanged = true" class="form-input" />
-            </el-form-item>
-            
-            <div class="form-row">
-              <el-form-item label="姓" prop="last_name" class="form-item half-width">
-                <el-input v-model="basicForm.last_name" @input="formChanged = true" class="form-input" />
               </el-form-item>
               
-              <el-form-item label="名" prop="first_name" class="form-item half-width">
-                <el-input v-model="basicForm.first_name" @input="formChanged = true" class="form-input" />
-              </el-form-item>
-            </div>
-            
-            <el-form-item label="手机号" prop="phone" class="form-item">
-              <el-input v-model="basicForm.phone" @input="formChanged = true" class="form-input" />
-            </el-form-item>
-            
-            <div class="form-divider"></div>
-            
-            <div class="form-section-title">工作信息</div>
-            
-            <div class="form-row">
-              <el-form-item label="部门" prop="department" class="form-item half-width">
-                <el-input v-model="basicForm.department" @input="formChanged = true" class="form-input" />
+              <div class="form-divider"></div>
+              
+              <div class="form-section-title">基本资料</div>
+              
+              <el-form-item label="用户名" class="form-item">
+                <el-input v-model="basicForm.username" disabled class="form-input disabled-input" />
               </el-form-item>
               
-              <el-form-item label="职位" prop="position" class="form-item half-width">
-                <el-input v-model="basicForm.position" @input="formChanged = true" class="form-input" />
+              <el-form-item label="邮箱" prop="email" class="form-item">
+                <el-input v-model="basicForm.email" @input="formChanged = true" class="form-input" />
               </el-form-item>
-            </div>
-            
-            <!-- 只有当表单有修改时才显示按钮 -->
-            <el-form-item class="action-buttons-container" v-if="formChanged">
-              <div class="form-buttons">
-                <el-button @click="handleBack" class="cancel-button">取消</el-button>
-                <el-button type="primary" :loading="basicLoading" @click="updateBasicInfo" class="save-button">保存</el-button>
+              
+              <div class="form-row">
+                <el-form-item label="姓" prop="last_name" class="form-item half-width">
+                  <el-input v-model="basicForm.last_name" @input="formChanged = true" class="form-input" />
+                </el-form-item>
+                
+                <el-form-item label="名" prop="first_name" class="form-item half-width">
+                  <el-input v-model="basicForm.first_name" @input="formChanged = true" class="form-input" />
+                </el-form-item>
               </div>
-            </el-form-item>
-          </el-form>
-        </el-tab-pane>
-        
-        <el-tab-pane label="修改密码" name="password">
-          <el-form ref="passwordFormRef" :model="passwordForm" :rules="passwordRules" label-width="120px" class="form-container">
-            <div class="password-form-header">
-              <i class="el-icon-lock password-icon"></i>
-              <div class="password-form-title">修改您的密码</div>
-              <div class="password-form-subtitle">为了保障账户安全，建议定期更换密码</div>
-            </div>
-            
-            <el-form-item label="当前密码" prop="old_password" class="form-item">
-              <el-input 
-                v-model="passwordForm.old_password" 
-                type="password" 
-                show-password 
-                @input="passwordFormChanged = true" 
-                class="form-input"
-                placeholder="请输入当前密码"
-              />
-            </el-form-item>
-            
-            <el-form-item label="新密码" prop="new_password" class="form-item">
-              <el-input 
-                v-model="passwordForm.new_password" 
-                type="password" 
-                show-password 
-                @input="passwordFormChanged = true" 
-                class="form-input"
-                placeholder="请输入新密码"
-              />
-            </el-form-item>
-            
-            <el-form-item label="确认新密码" prop="new_password2" class="form-item">
-              <el-input 
-                v-model="passwordForm.new_password2" 
-                type="password" 
-                show-password 
-                @input="passwordFormChanged = true" 
-                class="form-input"
-                placeholder="请再次输入新密码"
-              />
-            </el-form-item>
-            
-            <div class="password-tips">
-              <i class="el-icon-info-circle"></i> 密码长度不能少于6个字符，建议使用字母、数字和特殊字符的组合
-            </div>
-            
-            <!-- 只有当密码表单有修改时才显示按钮 -->
-            <el-form-item class="action-buttons-container" v-if="passwordFormChanged">
-              <div class="form-buttons">
-                <el-button @click="handleBack" class="cancel-button">取消</el-button>
-                <el-button type="primary" :loading="passwordLoading" @click="updatePassword" class="save-button">保存</el-button>
+              
+              <el-form-item label="手机号" prop="phone" class="form-item">
+                <el-input v-model="basicForm.phone" @input="formChanged = true" class="form-input" />
+              </el-form-item>
+              
+              <div class="form-divider"></div>
+              
+              <div class="form-section-title">工作信息</div>
+              
+              <div class="form-row">
+                <el-form-item label="部门" prop="department" class="form-item half-width">
+                  <el-input v-model="basicForm.department" @input="formChanged = true" class="form-input" />
+                </el-form-item>
+                
+                <el-form-item label="职位" prop="position" class="form-item half-width">
+                  <el-input v-model="basicForm.position" @input="formChanged = true" class="form-input" />
+                </el-form-item>
               </div>
-            </el-form-item>
-          </el-form>
-        </el-tab-pane>
-      </el-tabs>
+              
+              <!-- 只有当表单有修改时才显示按钮 -->
+              <el-form-item class="action-buttons-container" v-if="formChanged">
+                <div class="form-buttons">
+                  <el-button @click="handleBack" class="cancel-button">取消</el-button>
+                  <el-button type="primary" :loading="basicLoading" @click="updateBasicInfo" class="save-button">保存</el-button>
+                </div>
+              </el-form-item>
+            </el-form>
+          </el-tab-pane>
+          
+          <el-tab-pane label="修改密码" name="password">
+            <el-form ref="passwordFormRef" :model="passwordForm" :rules="passwordRules" label-width="120px" class="form-container">
+              <div class="password-form-header">
+                <el-icon class="password-icon"><Lock /></el-icon>
+                <div class="password-form-title">修改您的密码</div>
+                <div class="password-form-subtitle">为了保障账户安全，建议定期更换密码</div>
+              </div>
+              
+              <el-form-item label="当前密码" prop="old_password" class="form-item">
+                <el-input 
+                  v-model="passwordForm.old_password" 
+                  type="password" 
+                  show-password 
+                  @input="passwordFormChanged = true" 
+                  class="form-input"
+                  placeholder="请输入当前密码"
+                >
+                  <template #prefix>
+                    <el-icon><Key /></el-icon>
+                  </template>
+                </el-input>
+              </el-form-item>
+              
+              <el-form-item label="新密码" prop="new_password" class="form-item">
+                <el-input 
+                  v-model="passwordForm.new_password" 
+                  type="password" 
+                  show-password 
+                  @input="passwordFormChanged = true" 
+                  class="form-input"
+                  placeholder="请输入新密码"
+                >
+                  <template #prefix>
+                    <el-icon><EditPen /></el-icon>
+                  </template>
+                </el-input>
+              </el-form-item>
+              
+              <el-form-item label="确认新密码" prop="new_password2" class="form-item">
+                <el-input 
+                  v-model="passwordForm.new_password2" 
+                  type="password" 
+                  show-password 
+                  @input="passwordFormChanged = true" 
+                  class="form-input"
+                  placeholder="请再次输入新密码"
+                >
+                  <template #prefix>
+                    <el-icon><Check /></el-icon>
+                  </template>
+                </el-input>
+              </el-form-item>
+              
+              <div class="password-tips">
+                <el-icon><InfoFilled /></el-icon> 密码长度不能少于6个字符，建议使用字母、数字和特殊字符的组合
+              </div>
+              
+              <!-- 只有当密码表单有修改时才显示按钮 -->
+              <el-form-item class="action-buttons-container" v-if="passwordFormChanged">
+                <div class="form-buttons">
+                  <el-button @click="handleBack" class="cancel-button">取消</el-button>
+                  <el-button type="primary" :loading="passwordLoading" @click="updatePassword" class="save-button">保存</el-button>
+                </div>
+              </el-form-item>
+            </el-form>
+          </el-tab-pane>
+        </el-tabs>
+      </div>
     </div>
   </div>
 </template>
@@ -189,6 +208,17 @@ import { ref, reactive, onMounted, computed, watch } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useUserStore } from '@/store/user'
 import { useRouter } from 'vue-router'
+import { 
+  ArrowLeft, 
+  Upload, 
+  Delete, 
+  Lock, 
+  Key, 
+  EditPen, 
+  Check, 
+  InfoFilled,
+  Document
+} from '@element-plus/icons-vue'
 
 const userStore = useUserStore()
 const router = useRouter()
@@ -579,48 +609,87 @@ watch(activeTab, (newTab) => {
 })
 </script>
 
+<style>
+/* 移除全局样式，使用更具体的选择器 */
+</style>
+
 <style scoped>
-.profile-container {
-  min-height: 100%;
-  background-color: #f5f7fa;
-  padding: 24px;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.05);
+.profile-wrapper {
+  width: 100%;
+  min-height: 100vh;
   overflow-y: auto;
-  max-height: calc(100vh - 48px); /* 减去页面上下padding */
+  background-color: #f5f7fa;
 }
 
-.page-container {
-  height: 100%;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.05);
-  padding: 24px;
+.profile-page {
+  padding: 20px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .page-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid #ebeef5;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.content-box {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.title-section {
+  max-width: 70%;
+  margin-bottom: 8px;
 }
 
 .page-title {
-  margin: 0;
   font-size: 24px;
   font-weight: 600;
-  color: #303133;
+  margin-bottom: 8px;
+  position: relative;
+  padding-bottom: 10px;
+}
+
+.page-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(to right, var(--primary-color, #3498db), var(--primary-light, #2980b9));
+  border-radius: 3px;
+}
+
+.page-description {
+  color: var(--text-secondary, #606266);
+  font-size: var(--font-size-md, 14px);
+  margin-top: var(--spacing-sm, 8px);
+  line-height: 1.5;
 }
 
 .back-button {
-  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
 /* 自定义标签页样式 */
+.custom-tabs {
+  width: 100%;
+}
+
 .custom-tabs :deep(.el-tabs__header) {
   margin-bottom: 24px;
+  border-bottom: 1px solid #e4e7ed;
+  padding-bottom: 0;
 }
 
 .custom-tabs :deep(.el-tabs__item) {
@@ -632,6 +701,16 @@ watch(activeTab, (newTab) => {
 
 .custom-tabs :deep(.el-tabs__active-bar) {
   height: 3px;
+  background-color: var(--primary-color, #3498db);
+}
+
+.custom-tabs :deep(.el-tabs__item.is-active) {
+  color: var(--primary-color, #3498db);
+  font-weight: 600;
+}
+
+.custom-tabs :deep(.el-tabs__content) {
+  overflow: visible;
 }
 
 .form-container {
@@ -684,6 +763,7 @@ watch(activeTab, (newTab) => {
   margin-top: 32px;
   padding-top: 24px;
   border-top: 1px solid #ebeef5;
+  position: relative; /* 确保按钮容器正确定位 */
 }
 
 .form-buttons {
@@ -702,6 +782,8 @@ watch(activeTab, (newTab) => {
 /* 头像相关样式 */
 .avatar-form-item {
   margin-bottom: 32px;
+  border-bottom: 1px solid #ebeef5;
+  padding-bottom: 32px;
 }
 
 .avatar-container {
@@ -714,16 +796,25 @@ watch(activeTab, (newTab) => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
+  padding: 20px;
+  background-color: #f9fafc;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.05);
 }
 
 .avatar-preview {
-  border: 4px solid #ebeef5;
+  border: 4px solid #fff;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-  background-color: #f5f7fa;
+  background-color: var(--primary-color, #3498db);
   font-size: 48px;
   font-weight: 600;
-  color: #409EFF;
+  color: #fff;
+  transition: all 0.3s ease;
+}
+
+.avatar-preview:hover {
+  transform: scale(1.05);
 }
 
 .avatar-actions {
@@ -732,14 +823,20 @@ watch(activeTab, (newTab) => {
 }
 
 .action-button {
-  height: 40px;
+  height: 36px;
   font-weight: 500;
+  border-radius: 4px;
+  transition: all 0.3s ease;
 }
 
 .avatar-options {
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 20px;
+  padding: 20px;
+  background-color: #f9fafc;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.05);
 }
 
 .section-title {
@@ -748,6 +845,7 @@ watch(activeTab, (newTab) => {
   color: #303133;
   position: relative;
   padding-left: 12px;
+  margin-bottom: 16px;
 }
 
 .section-title::before {
@@ -758,7 +856,7 @@ watch(activeTab, (newTab) => {
   transform: translateY(-50%);
   width: 4px;
   height: 16px;
-  background-color: #409EFF;
+  background-color: var(--primary-color, #3498db);
   border-radius: 2px;
 }
 
@@ -766,6 +864,7 @@ watch(activeTab, (newTab) => {
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
+  justify-content: center;
 }
 
 .avatar-item {
@@ -777,6 +876,7 @@ watch(activeTab, (newTab) => {
   border: 3px solid transparent;
   transition: all 0.3s;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  position: relative;
 }
 
 .avatar-item:hover {
@@ -785,7 +885,7 @@ watch(activeTab, (newTab) => {
 }
 
 .avatar-item.selected {
-  border-color: #409EFF;
+  border-color: var(--primary-color, #3498db);
 }
 
 .avatar-img {
@@ -794,24 +894,24 @@ watch(activeTab, (newTab) => {
   object-fit: cover;
 }
 
-.upload-container {
+.avatar-check {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(52, 152, 219, 0.6);
   display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.file-upload-wrapper {
-  display: inline-block;
-}
-
-.upload-button {
-  height: 40px;
-  font-weight: 500;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 24px;
+  border-radius: 50%;
 }
 
 .selected-file-info {
   font-size: 14px;
-  color: #409EFF;
+  color: var(--primary-color, #3498db);
   margin-top: 8px;
   background-color: #ecf5ff;
   padding: 8px 12px;
@@ -827,20 +927,22 @@ watch(activeTab, (newTab) => {
   display: flex;
   align-items: center;
   gap: 6px;
+  margin-top: 8px;
 }
 
 /* 密码表单样式 */
 .password-form-header {
   text-align: center;
   margin-bottom: 32px;
-  padding: 24px;
-  background-color: #f5f7fa;
+  padding: 32px;
+  background-color: #f9fafc;
   border-radius: 8px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.05);
 }
 
 .password-icon {
   font-size: 48px;
-  color: #409EFF;
+  color: var(--primary-color, #3498db);
   margin-bottom: 16px;
 }
 
@@ -861,20 +963,28 @@ watch(activeTab, (newTab) => {
   color: #909399;
   margin-top: 16px;
   margin-bottom: 32px;
-  padding: 12px 16px;
-  background-color: #f5f7fa;
-  border-radius: 4px;
+  padding: 16px;
+  background-color: #f9fafc;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   gap: 8px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.05);
 }
 
-/* 确保标签页内容可滚动 */
-:deep(.el-tabs__content) {
-  overflow: visible;
-}
-
-:deep(.el-tab-pane) {
-  min-height: 200px;
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+  
+  .half-width {
+    width: 100%;
+  }
+  
+  .form-container {
+    padding: 0;
+  }
 }
 </style> 
